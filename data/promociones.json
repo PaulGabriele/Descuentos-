@@ -1,0 +1,2004 @@
+[
+  {
+    "id": "bna-changomas-lunes",
+    "supermercado": "changomas",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "lunes"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "tope": {
+      "monto": 25000,
+      "periodo": "mensual"
+    },
+    "minimoCompra": 75000,
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-coto-martes",
+    "supermercado": "coto",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "martes"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "notas": "Sin tope de reintegro publicado.",
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-changomas-miercoles",
+    "supermercado": "changomas",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 35
+    },
+    "dias": [
+      "miercoles"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "tope": {
+      "monto": 15000,
+      "periodo": "semanal"
+    },
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-dia-finde",
+    "supermercado": "dia",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "viernes",
+      "sabado"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "tope": {
+      "monto": 20000,
+      "periodo": "mensual"
+    },
+    "minimoCompra": 35000,
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-disco-finde",
+    "supermercado": "disco",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "tope": {
+      "monto": 25000,
+      "periodo": "mensual"
+    },
+    "minimoCompra": 100000,
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-vea-finde",
+    "supermercado": "vea",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "tope": {
+      "monto": 25000,
+      "periodo": "mensual"
+    },
+    "minimoCompra": 100000,
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-changomas-domingo-online",
+    "supermercado": "changomas",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "domingo"
+    ],
+    "mediosDePago": [
+      "QR MODO",
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "tope": {
+      "monto": 20000,
+      "periodo": "mensual"
+    },
+    "minimoCompra": 30000,
+    "canales": [
+      "online"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Asociar la tarjeta del banco a la billetera MODO",
+      "Pagar escaneando el QR desde la app"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/banco-nacion-confirmo-los-descuentos-en-supermercados-de-septiembre-2026-como-ahorrar-hasta-25-000-dia-por-dia/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "alta"
+  },
+  {
+    "id": "bna-carrefour-jueves",
+    "supermercado": "carrefour",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 5
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito",
+      "MODO"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bna-dia-jueves",
+    "supermercado": "dia",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 5
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito",
+      "MODO"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bna-carrefour-viernes",
+    "supermercado": "carrefour",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 5
+    },
+    "dias": [
+      "viernes"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito",
+      "MODO"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bna-coto-cuotas",
+    "supermercado": "coto",
+    "emisor": "banco-nacion",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 20,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito Visa",
+      "tarjeta de crédito Mastercard"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Hasta 20 cuotas sin interés; también aparecen planes de 6 cuotas.",
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "cdni-dia-lunes",
+    "supermercado": "dia",
+    "emisor": "banco-provincia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes"
+    ],
+    "mediosDePago": [
+      "QR Cuenta DNI"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Sin tope general publicado para esta cadena.",
+    "fuente": {
+      "url": "https://www.infozona.com.ar/cuenta-dni-supermercados-septiembre-2026-dias-cadenas-descuentos/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "cdni-carrefour-miercoles",
+    "supermercado": "carrefour",
+    "emisor": "banco-provincia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "miercoles"
+    ],
+    "mediosDePago": [
+      "QR Cuenta DNI"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/cuenta-dni-supermercados-septiembre-2026-dias-cadenas-descuentos/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "cdni-changomas-jueves",
+    "supermercado": "changomas",
+    "emisor": "banco-provincia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "QR Cuenta DNI"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.infozona.com.ar/cuenta-dni-supermercados-septiembre-2026-dias-cadenas-descuentos/",
+      "medio": "Infozona",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "cdni-changomas-viernes",
+    "supermercado": "changomas",
+    "emisor": "banco-provincia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 15
+    },
+    "dias": [
+      "viernes"
+    ],
+    "mediosDePago": [
+      "QR Cuenta DNI"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-coto-viernes",
+    "supermercado": "coto",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 25
+    },
+    "dias": [
+      "viernes"
+    ],
+    "mediosDePago": [
+      "QR Mercado Pago",
+      "dinero en cuenta"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-carrefour-jueves",
+    "supermercado": "carrefour",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 15
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "QR Mercado Pago",
+      "dinero en cuenta"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Vigente todos los jueves de septiembre.",
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-carrefour-viernes",
+    "supermercado": "carrefour",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "viernes"
+    ],
+    "mediosDePago": [
+      "QR Mercado Pago",
+      "dinero en cuenta"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-dia-miercoles",
+    "supermercado": "dia",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 15
+    },
+    "dias": [
+      "miercoles"
+    ],
+    "mediosDePago": [
+      "QR Mercado Pago",
+      "dinero en cuenta"
+    ],
+    "minimoCompra": 20000,
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-miercoles-2-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-changomas-viernes",
+    "supermercado": "changomas",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 15
+    },
+    "dias": [
+      "viernes"
+    ],
+    "mediosDePago": [
+      "QR Mercado Pago",
+      "dinero en cuenta"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-coto-cuotas",
+    "supermercado": "coto",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito en Mercado Pago"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-carrefour-cuotas",
+    "supermercado": "carrefour",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito en Mercado Pago"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-dia-cuotas",
+    "supermercado": "dia",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito en Mercado Pago"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "mp-changomas-cuotas",
+    "supermercado": "changomas",
+    "emisor": "mercado-pago",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 2,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito en Mercado Pago"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-coto-cuotas",
+    "supermercado": "coto",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-dia-cuotas",
+    "supermercado": "dia",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-carrefour-cuotas",
+    "supermercado": "carrefour",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 4,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-changomas-cuotas",
+    "supermercado": "changomas",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 4,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-jumbo-cuotas",
+    "supermercado": "jumbo",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 12,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-disco-cuotas",
+    "supermercado": "disco",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 12,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-vea-cuotas",
+    "supermercado": "vea",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 12,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "nx-changomas-viernes",
+    "supermercado": "changomas",
+    "emisor": "naranja-x",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 15
+    },
+    "dias": [
+      "viernes"
+    ],
+    "mediosDePago": [
+      "tarjeta Naranja X"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-jumbo-jueves",
+    "supermercado": "jumbo",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-jumbo-cuotas",
+    "supermercado": "jumbo",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-disco-jueves",
+    "supermercado": "disco",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-disco-cuotas",
+    "supermercado": "disco",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-vea-jueves",
+    "supermercado": "vea",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-vea-cuotas",
+    "supermercado": "vea",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 3,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "galicia-coto-cuotas",
+    "supermercado": "coto",
+    "emisor": "galicia",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 12,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "También hay planes de 6 cuotas según el rubro.",
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bbva-jumbo-black",
+    "supermercado": "jumbo",
+    "emisor": "bbva",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "clientes",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Ser cliente del segmento Plan Black de BBVA"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bbva-disco-black",
+    "supermercado": "disco",
+    "emisor": "bbva",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "clientes",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Ser cliente del segmento Plan Black de BBVA"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bbva-vea-black",
+    "supermercado": "vea",
+    "emisor": "bbva",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "clientes",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Ser cliente del segmento Plan Black de BBVA"
+    ],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "bbva-coto-cuotas",
+    "supermercado": "coto",
+    "emisor": "bbva",
+    "beneficio": {
+      "tipo": "cuotas",
+      "cuotas": 12,
+      "sinInteres": true
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Planes de 6 y 12 cuotas sin interés.",
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-a50-mejores-descuentos-en-supermercados-para-este-viernes-4-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "icbc-coto-jueves",
+    "supermercado": "coto",
+    "emisor": "icbc",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Algunas semanas la cadena comunica hasta 25%.",
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "icbc-changomas-jueves",
+    "supermercado": "changomas",
+    "emisor": "icbc",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "jueves"
+    ],
+    "mediosDePago": [
+      "tarjeta de crédito",
+      "tarjeta de débito"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.perfil.com/noticias/economia/cuales-son-los-mejores-a50-descuentos-en-supermercados-para-este-jueves-3-de-septiembre.phtml",
+      "medio": "Perfil",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "supervielle-jumbo-martes",
+    "supermercado": "jumbo",
+    "emisor": "supervielle",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 20
+    },
+    "dias": [
+      "martes"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito",
+      "QR"
+    ],
+    "tope": {
+      "monto": 25000,
+      "periodo": "mensual"
+    },
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "general",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Publicado para febrero de 2026; no lo pudimos reconfirmar para septiembre. Verificá en el banco antes de comprar.",
+    "fuente": {
+      "url": "https://www.elobservador.com.uy/argentina/economia-y-negocios/descuentos-supermercados-febrero-2026-banco-y-biletera-virtual-que-promociones-y-dias-tienen-rebajas-coto-carrefour-disco-jumbo-vea-dia-y-chango-mas-n6033262",
+      "medio": "El Observador",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "baja"
+  },
+  {
+    "id": "jub-coto",
+    "supermercado": "coto",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [
+      "carnes",
+      "electro",
+      "marcas seleccionadas"
+    ],
+    "notas": "Sin tope de reintegro. Confirmá el día vigente en la sucursal.",
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "jub-carrefour",
+    "supermercado": "carrefour",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "tope": {
+      "monto": 35000,
+      "periodo": "mensual"
+    },
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [
+      "Ser mayor de 60 años"
+    ],
+    "exclusiones": [
+      "carnes",
+      "electro",
+      "marcas seleccionadas"
+    ],
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "jub-dia",
+    "supermercado": "dia",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "tope": {
+      "monto": 2000,
+      "periodo": "transaccion"
+    },
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "jub-changomas",
+    "supermercado": "changomas",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "tope": {
+      "monto": 1000,
+      "periodo": "transaccion"
+    },
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Además hay un tope acumulado de $15.000 por mes.",
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "jub-jumbo",
+    "supermercado": "jumbo",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Sin tope. En perfumería y limpieza el beneficio sube a 20%.",
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "jub-disco",
+    "supermercado": "disco",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Sin tope. En perfumería y limpieza el beneficio sube a 20%.",
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  },
+  {
+    "id": "jub-vea",
+    "supermercado": "vea",
+    "emisor": "anses",
+    "beneficio": {
+      "tipo": "descuento",
+      "porcentaje": 10
+    },
+    "dias": [
+      "lunes",
+      "martes",
+      "miercoles",
+      "jueves",
+      "viernes",
+      "sabado",
+      "domingo"
+    ],
+    "mediosDePago": [
+      "tarjeta de débito donde cobrás el haber"
+    ],
+    "canales": [
+      "sucursal"
+    ],
+    "segmento": "jubilados",
+    "vigencia": {
+      "desde": "2026-09-01",
+      "hasta": "2026-09-30"
+    },
+    "requisitos": [],
+    "exclusiones": [],
+    "notas": "Sin tope. En perfumería y limpieza el beneficio sube a 20%.",
+    "fuente": {
+      "url": "https://www.iprofesional.com/economia/463577-descuentos-para-jubilados-en-septiembre-en-coto-carrefour-dia-y-chango-mas",
+      "medio": "iProfesional",
+      "tipo": "prensa",
+      "verificadoEl": "2026-09-06"
+    },
+    "confianza": "media"
+  }
+]

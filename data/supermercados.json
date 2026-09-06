@@ -1,0 +1,62 @@
+[
+  {
+    "id": "carrefour",
+    "nombre": "Carrefour",
+    "color": "#0053a0",
+    "grupo": "Carrefour Argentina",
+    "sitio": "https://www.carrefour.com.ar/",
+    "paginaPromos": "https://www.carrefour.com.ar/descuentos-bancarios",
+    "folleto": "https://www.carrefour.com.ar/folletos"
+  },
+  {
+    "id": "coto",
+    "nombre": "Coto",
+    "color": "#e30613",
+    "grupo": "Coto CICSA",
+    "sitio": "https://www.coto.com.ar/",
+    "paginaPromos": "https://www.coto.com.ar/descuentos",
+    "folleto": "https://www.coto.com.ar/promociones"
+  },
+  {
+    "id": "dia",
+    "nombre": "Día",
+    "color": "#d52b1e",
+    "grupo": "Día Argentina",
+    "sitio": "https://diaonline.supermercadosdia.com.ar/",
+    "paginaPromos": "https://diaonline.supermercadosdia.com.ar/promociones-bancarias"
+  },
+  {
+    "id": "changomas",
+    "nombre": "Chango Más",
+    "color": "#f9a11b",
+    "grupo": "Grupo De Narváez",
+    "sitio": "https://www.masonline.com.ar/",
+    "paginaPromos": "https://www.masonline.com.ar/promociones-bancarias",
+    "folleto": "https://www.masonline.com.ar/promociones"
+  },
+  {
+    "id": "jumbo",
+    "nombre": "Jumbo",
+    "color": "#00953b",
+    "grupo": "Cencosud",
+    "sitio": "https://www.jumbo.com.ar/",
+    "paginaPromos": "https://www.jumbo.com.ar/descuentos-bancarios",
+    "folleto": "https://www.jumbo.com.ar/folletos"
+  },
+  {
+    "id": "disco",
+    "nombre": "Disco",
+    "color": "#e2001a",
+    "grupo": "Cencosud",
+    "sitio": "https://www.disco.com.ar/",
+    "paginaPromos": "https://www.disco.com.ar/descuentos-bancarios"
+  },
+  {
+    "id": "vea",
+    "nombre": "Vea",
+    "color": "#ffd400",
+    "grupo": "Cencosud",
+    "sitio": "https://www.vea.com.ar/",
+    "paginaPromos": "https://www.vea.com.ar/descuentos-bancarios"
+  }
+]

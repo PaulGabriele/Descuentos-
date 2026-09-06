@@ -1,0 +1,32 @@
+{
+  "name": "promos-super",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Buscador de promociones bancarias y ofertas de supermercados de Argentina",
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run validar && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "validar": "tsx scripts/validar-datos.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "^15.5.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/node": "^24.7.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

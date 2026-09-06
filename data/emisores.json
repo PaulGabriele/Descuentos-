@@ -1,0 +1,17 @@
+[
+  { "id": "banco-nacion", "nombre": "Banco Nación", "tipo": "banco", "sitio": "https://www.bna.com.ar/", "alias": ["BNA", "BNA+", "Tienda BNA"] },
+  { "id": "banco-provincia", "nombre": "Cuenta DNI", "tipo": "billetera", "sitio": "https://cuentadni.bancoprovincia.com.ar/", "alias": ["Banco Provincia", "BAPRO"] },
+  { "id": "galicia", "nombre": "Banco Galicia", "tipo": "banco", "sitio": "https://www.galicia.ar/", "alias": ["Galicia Más"] },
+  { "id": "bbva", "nombre": "BBVA", "tipo": "banco", "sitio": "https://www.bbva.com.ar/", "alias": ["Plan Black", "Plan Sueldo"] },
+  { "id": "icbc", "nombre": "ICBC", "tipo": "banco", "sitio": "https://www.icbc.com.ar/", "alias": ["Club ICBC"] },
+  { "id": "santander", "nombre": "Santander", "tipo": "banco", "sitio": "https://www.santander.com.ar/", "alias": ["Santander Río"] },
+  { "id": "supervielle", "nombre": "Banco Supervielle", "tipo": "banco", "sitio": "https://www.supervielle.com.ar/", "alias": ["Identité"] },
+  { "id": "credicoop", "nombre": "Banco Credicoop", "tipo": "banco", "sitio": "https://bancocredicoop.coop/", "alias": [] },
+  { "id": "mercado-pago", "nombre": "Mercado Pago", "tipo": "billetera", "sitio": "https://www.mercadopago.com.ar/", "alias": ["MP"] },
+  { "id": "modo", "nombre": "MODO", "tipo": "billetera", "sitio": "https://www.modo.com.ar/", "alias": [] },
+  { "id": "naranja-x", "nombre": "Naranja X", "tipo": "billetera", "sitio": "https://www.naranjax.com/", "alias": ["Tarjeta Naranja"] },
+  { "id": "uala", "nombre": "Ualá", "tipo": "billetera", "sitio": "https://www.uala.com.ar/", "alias": [] },
+  { "id": "anses", "nombre": "ANSES / Jubilados", "tipo": "programa", "sitio": "https://www.anses.gob.ar/", "alias": ["Tarjeta de débito de haberes"] },
+  { "id": "mi-carrefour", "nombre": "Mi Carrefour", "tipo": "programa", "sitio": "https://www.carrefour.com.ar/", "alias": ["Tarjeta Carrefour"] },
+  { "id": "club-dia", "nombre": "Club Día", "tipo": "programa", "sitio": "https://diaonline.supermercadosdia.com.ar/", "alias": [] }
+]
