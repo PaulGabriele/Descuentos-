@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unifilar de Tableros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#E9EDF0; --panel:#FFFFFF; --panel-2:#F4F6F8; --ink:#15202B; --muted:#5A6774; --line:#D3DAE0;
+  --accent:#1D5AA6; --accent-soft:#E3ECF7; --accent-ink:#FFFFFF;
+  --warn:#A55A08; --warn-soft:#FBEFD9; --bad:#B42318; --bad-soft:#FBE4E1; --ok:#1E7B4F;
+  --desk:#DCE2E7;
+  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cond:"IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, "Liberation Mono", monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10151B; --panel:#18202A; --panel-2:#1E2833; --ink:#E4EAF0; --muted:#94A2B0; --line:#2B3744;
+    --accent:#72A9EE; --accent-soft:#1E3350; --accent-ink:#0C1520;
+    --warn:#E6A650; --warn-soft:#3A2A12; --bad:#F2796B; --bad-soft:#3E1D1A; --ok:#56C58F;
+    --desk:#0B0F14; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10151B; --panel:#18202A; --panel-2:#1E2833; --ink:#E4EAF0; --muted:#94A2B0; --line:#2B3744;
+  --accent:#72A9EE; --accent-soft:#1E3350; --accent-ink:#0C1520;
+  --warn:#E6A650; --warn-soft:#3A2A12; --bad:#F2796B; --bad-soft:#3E1D1A; --ok:#56C58F;
+  --desk:#0B0F14; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- barra superior ---------- */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand h1{font:700 19px/1 var(--cond);letter-spacing:.01em;margin:0}
+.brand span{font:500 11px/1 var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--panel-2)}
+.seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-weight:500;display:flex;gap:8px;align-items:center}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg small{font:500 11px var(--mono);opacity:.8}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 11px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08);color:var(--accent-ink)}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.sm{padding:3px 8px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:default;pointer-events:none}
+
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:290px minmax(0,1fr) 340px;gap:0;min-height:calc(100vh - 60px)}
+.side{background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.side.left{border-right:1px solid var(--line)}
+.side.right{border-left:1px solid var(--line)}
+.stage{padding:16px;min-width:0;background:var(--desk);display:flex;flex-direction:column;gap:10px}
+.hint{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.zoom{display:inline-flex;gap:4px;align-items:center;margin-left:auto}
+.zoom output{font:500 12px var(--mono);min-width:44px;text-align:center}
+.sheetwrap{overflow:auto;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.12),0 6px 24px rgba(0,0,0,.10);background:#fff;max-height:calc(100vh - 150px)}
+.sheetwrap svg{display:block}
+.sheetwrap [data-sel]{cursor:pointer}
+
+@media (max-width:1180px){
+  .app{grid-template-columns:1fr 1fr}
+  .stage{grid-column:1 / -1;order:-1}
+  .side.left{border-right:1px solid var(--line)}
+  .side.right{border-left:0}
+  .sheetwrap{max-height:70vh}
+}
+@media (max-width:720px){
+  .app{grid-template-columns:1fr}
+  .side.left{border-right:0;border-bottom:1px solid var(--line)}
+}
+
+/* ---------- paneles ---------- */
+.sec h2{font:600 12px/1 var(--cond);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.sec h2 .grow{flex:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.f{display:flex;flex-direction:column;gap:3px;min-width:0}
+.f.full{grid-column:1 / -1}
+.f label{font-size:11.5px;color:var(--muted);font-weight:500}
+.f input,.f select{width:100%;min-width:0;border:1px solid var(--line);border-radius:5px;padding:6px 8px;background:var(--panel-2)}
+.f input:focus,.f select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.f select:disabled,.f input:disabled{opacity:.6}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.tree{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.tree ul{list-style:none;margin:2px 0 0 14px;padding:0 0 0 8px;border-left:1px dashed var(--line);display:flex;flex-direction:column;gap:2px}
+.node{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid transparent;background:none;padding:5px 7px;border-radius:5px;cursor:pointer}
+.node:hover{background:var(--panel-2)}
+.node[aria-current="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.node .tag{font:600 12px var(--mono);min-width:26px}
+.node .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--bad);flex:none}
+.ph{display:inline-flex;gap:1px;font:600 10.5px/1 var(--mono);padding:3px 4px;border-radius:3px;background:var(--panel-2);border:1px solid var(--line)}
+.ph i{font-style:normal}
+.pR{color:#8A5427}.pS{color:var(--ink)}.pT{color:#C8352C}.pN{color:#2E95CB}.pL{color:#8A5427}
+
+.bal{display:flex;flex-direction:column;gap:7px}
+.bal .row{display:grid;grid-template-columns:18px 1fr 118px;gap:8px;align-items:center;font-size:12.5px}
+.bal .bar{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.bal .bar b{display:block;height:100%}
+.bal .v{font:500 12px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.bal .foot{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pill{display:inline-block;padding:2px 7px;border-radius:99px;font:600 11px var(--mono)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+
+.insp-head{display:flex;align-items:baseline;gap:10px}
+.insp-head .big{font:700 22px/1 var(--cond)}
+.insp-head .sub{color:var(--muted);font-size:12.5px}
+.warns{display:flex;flex-direction:column;gap:6px}
+.warns div{font-size:12.5px;padding:7px 9px;border-radius:5px;background:var(--bad-soft);color:var(--bad);border-left:3px solid var(--bad)}
+.warns div.w{background:var(--warn-soft);color:var(--warn);border-left-color:var(--warn)}
+.calc{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.calc div{background:var(--panel-2);padding:7px 9px}
+.calc small{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.calc b{font:600 15px var(--mono);font-variant-numeric:tabular-nums}
+
+.devs{display:flex;flex-direction:column;gap:8px}
+.dev{border:1px solid var(--line);border-radius:7px;background:var(--panel-2);padding:8px 9px 10px;display:flex;flex-direction:column;gap:8px}
+.dev header{display:flex;align-items:center;gap:8px}
+.dev header svg{flex:none;color:var(--ink)}
+.dev header b{font-weight:600;font-size:13px;flex:1;min-width:0}
+.dev header .acts{display:flex;gap:3px}
+.dev .grid2 .f input,.dev .grid2 .f select{background:var(--panel)}
+.ic{border:1px solid var(--line);background:var(--panel);border-radius:4px;width:26px;height:24px;display:grid;place-items:center;cursor:pointer;font-size:12px;padding:0}
+.ic:hover{border-color:var(--accent);color:var(--accent)}
+.ic.del:hover{border-color:var(--bad);color:var(--bad)}
+.ic:disabled{opacity:.35;pointer-events:none}
+.empty{font-size:12.5px;color:var(--muted);padding:8px;border:1px dashed var(--line);border-radius:6px;text-align:center}
+
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.pal button{display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:6px 4px 7px;cursor:pointer;font-size:11.5px;line-height:1.2;text-align:center}
+.pal button:hover{border-color:var(--accent);color:var(--accent)}
+.pal svg{color:currentColor}
+.acts-row{display:flex;flex-wrap:wrap;gap:6px}
+.note{font-size:12px;color:var(--muted);margin:0}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:7px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:10}
+input[type=file]{display:none}
+@media (prefers-reduced-motion:no-preference){.btn,.node,.ic,.pal button{transition:border-color .12s,background-color .12s,color .12s}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span></div>
+  <div class="seg" role="group" aria-label="Tipo de tablero">
+    <button type="button" id="tipo-bi" data-tipo="bi">Bipolar <small>1×220 V</small></button>
+    <button type="button" id="tipo-tetra" data-tipo="tetra">Tetrapolar <small>3×380/220 V</small></button>
+  </div>
+  <div class="tools">
+    <button type="button" class="btn" id="b-ejemplo">Cargar ejemplo</button>
+    <button type="button" class="btn danger" id="b-nuevo">Tablero nuevo</button>
+    <button type="button" class="btn" id="b-abrir">Abrir .json</button>
+    <button type="button" class="btn" id="b-json">Guardar .json</button>
+    <button type="button" class="btn" id="b-png">PNG</button>
+    <button type="button" class="btn primary" id="b-svg">Descargar SVG</button>
+    <input type="file" id="f-abrir" accept=".json,application/json">
+  </div>
+</header>
+
+<main class="app">
+  <aside class="side left">
+    <section class="sec">
+      <h2>Datos del tablero</h2>
+      <div class="grid2" id="tabform"></div>
+    </section>
+    <section class="sec">
+      <h2><span class="grow">Estructura</span><button type="button" class="btn sm" id="b-add-top">+ Circuito</button></h2>
+      <ul class="tree" id="tree"></ul>
+    </section>
+    <section class="sec">
+      <h2 id="bal-title">Balance de fases</h2>
+      <div class="bal" id="bal"></div>
+    </section>
+  </aside>
+
+  <section class="stage">
+    <div class="hint">
+      <span>Tocá cualquier rama del esquema para editarla. Los aparatos se dibujan en el orden de la lista, de arriba hacia abajo.</span>
+      <span class="zoom">
+        <button type="button" class="ic" id="z-out" aria-label="Alejar">−</button>
+        <output id="z-val">100%</output>
+        <button type="button" class="ic" id="z-in" aria-label="Acercar">+</button>
+        <button type="button" class="btn sm" id="z-fit">Ajustar</button>
+      </span>
+    </div>
+    <div class="sheetwrap" id="sheetwrap"></div>
+  </section>
+
+  <aside class="side right" id="insp"></aside>
+</main>
+
+<script>
+(() => {
+"use strict";
+
+/* ============================================================
+   Catálogo
+   ============================================================ */
+const IN_ITM = [2,4,6,10,16,20,25,32,40,50,63,80,100,125,160,200,250];
+const DEV = {
+  itm:  {nombre:"Interruptor termomagnético", corto:"ITM", def:{In:16,curva:"C",icc:6},
+         f:[["In","In (A)",IN_ITM],["curva","Curva",["B","C","D"]],["icc","Poder de corte (kA)",[3,4.5,6,10,15,20,25,36,50]]]},
+  id:   {nombre:"Interruptor diferencial", corto:"ID", def:{In:40,sens:30,clase:"AC"},
+         f:[["In","In (A)",[25,40,63,80,100,125]],["sens","IΔn (mA)",[10,30,100,300,500]],["clase","Clase",["AC","A","A-SI","F","B"]]]},
+  secc: {nombre:"Interruptor seccionador", corto:"Secc.", def:{In:63},
+         f:[["In","In (A)",[20,32,40,63,80,100,125,160,250,400,630]]]},
+  fus:  {nombre:"Seccionador fusible", corto:"Fus.", def:{In:32,clasef:"gG",formato:"NH00"},
+         f:[["In","In (A)",[2,4,6,10,16,20,25,32,40,50,63,80,100,125,160,200,250,315,400]],["clasef","Clase",["gG","aM"]],["formato","Formato",["NH00","NH1","NH2","NH3","10x38","14x51","22x58"]]]},
+  gm:   {nombre:"Guardamotor", corto:"GM", def:{rango:"6,3–10 A",icc:50},
+         f:[["rango","Regulación","text"],["icc","Poder de corte (kA)",[6,10,15,50,100]]]},
+  cont: {nombre:"Contactor", corto:"K", def:{In:12,bobina:"220 V"},
+         f:[["In","Ie AC-3 (A)",[9,12,18,25,32,40,50,65,80,95,115,150]],["bobina","Bobina",["24 V","110 V","220 V","380 V"]]]},
+  term: {nombre:"Relé térmico", corto:"RT", def:{rango:"7–10 A"},
+         f:[["rango","Regulación","text"]]},
+  med:  {nombre:"Medidor de energía", corto:"kWh", def:{medidor:"Trifásico"},
+         f:[["medidor","Tipo",["Monofásico","Trifásico","Trifásico c/TI"]]]},
+  dps:  {nombre:"Descargador (DPS)", corto:"DPS", side:true, def:{clase:"II",imax:40},
+         f:[["clase","Clase",["I","I+II","II","III"]],["imax","Imax (kA)",[10,20,40,65,100]]]},
+  inst: {nombre:"Instrumento / piloto", corto:"Instr.", side:true, def:{instr:"Voltímetro"},
+         f:[["instr","Tipo",["Voltímetro","Amperímetro","Multimedidor","Luz piloto"]]]},
+};
+const DEV_ORDER = ["itm","id","secc","fus","gm","cont","term","med","dps","inst"];
+
+const LOAD = {
+  iug:   {nombre:"Iluminación (IUG)", cos:0.9},
+  tug:   {nombre:"Tomas uso general (TUG)", cos:0.9},
+  tue:   {nombre:"Tomas uso especial (TUE)", cos:0.9},
+  motor: {nombre:"Motor", cos:0.85},
+  aa:    {nombre:"Aire acondicionado", cos:0.85},
+  st:    {nombre:"Subtablero", cos:0.9},
+  carga: {nombre:"Carga genérica", cos:1},
+  res:   {nombre:"Reserva", cos:1},
+};
+
+const PHC = {R:"#7A4A22", S:"#1A1A1A", T:"#C4312A", N:"#2E95CB", L:"#7A4A22"};
+const MONO = "'IBM Plex Mono', ui-monospace, Consolas, monospace";
+const COND = "'IBM Plex Sans Condensed', 'Arial Narrow', Arial, sans-serif";
+
+/* ============================================================
+   Estado
+   ============================================================ */
+const rid = () => Math.random().toString(36).slice(2, 9);
+const dev = (tipo, p = {}) => ({id: rid(), tipo, tag: "", polos: "auto", ...DEV[tipo].def, ...p});
+const sal = (p) => ({id: rid(), tag: "", nombre: "Circuito", fase: "R", carga: "tug", kw: 1, cos: 0.9, cable: "2x2,5 mm² + PE", devs: [], hijos: [], ...p});
+const hoy = () => new Date().toISOString().slice(0, 10);
+
+function ejemplo(tipo) {
+  if (tipo === "bi") return {
+    v: 1,
+    tab: {tipo: "bi", nombre: "TP · Vivienda", obra: "Vivienda unifamiliar — Lote 14", alim: "Desde medidor · 2x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 0.8},
+    ent: [dev("itm", {In: 40, curva: "C", icc: 4.5, tag: "Q0"}), dev("id", {In: 40, sens: 30, tag: "Q1"}), dev("dps", {clase: "II", imax: 20})],
+    sal: [
+      sal({nombre: "Iluminación planta baja", carga: "iug", kw: 0.9, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
+      sal({nombre: "Iluminación planta alta", carga: "iug", kw: 0.7, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
+      sal({nombre: "Tomas cocina y lavadero", carga: "tug", kw: 2.2, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16, icc: 4.5})]}),
+      sal({nombre: "Tomas dormitorios", carga: "tug", kw: 1.8, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16, icc: 4.5})]}),
+      sal({nombre: "Aire acondicionado living", carga: "aa", kw: 2.3, cos: 0.85, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20, icc: 4.5})]}),
+      sal({nombre: "Reserva", carga: "res", kw: 0, cable: "—", devs: [dev("itm", {In: 16, icc: 4.5})]}),
+    ],
+  };
+  return {
+    v: 1,
+    tab: {tipo: "tetra", nombre: "TS-1 · Taller", obra: "Nave industrial — Planta 1", alim: "Desde TG · 4x16 mm² + PE 16 mm²", plano: "E-02", dibujo: "", fecha: hoy(), fs: 0.8},
+    ent: [dev("itm", {In: 63, curva: "C", icc: 10, tag: "Q0"}), dev("dps", {clase: "II", imax: 40}), dev("inst", {instr: "Multimedidor"})],
+    sal: [
+      sal({nombre: "Circuitos terminales", fase: "RST", carga: "carga", devs: [dev("id", {In: 40, sens: 30, tag: "Q1"})], hijos: [
+        sal({nombre: "Iluminación nave", fase: "R", carga: "iug", kw: 1.2, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10})]}),
+        sal({nombre: "Tomas oficina", fase: "S", carga: "tug", kw: 2.2, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16})]}),
+        sal({nombre: "Tomas taller", fase: "T", carga: "tug", kw: 3, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20})]}),
+      ]}),
+      sal({nombre: "Compresor", fase: "RST", carga: "motor", kw: 4, cos: 0.85, cable: "4x2,5 mm² + PE", devs: [dev("gm", {rango: "6,3–10 A", polos: "3"}), dev("cont", {In: 12, polos: "3"})]}),
+      sal({nombre: "Aire acondicionado oficina", fase: "R", carga: "aa", kw: 2.6, cos: 0.85, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20}), dev("id", {In: 25, sens: 30})]}),
+      sal({nombre: "Subtablero depósito", fase: "RST", carga: "st", kw: 8, cable: "4x6 mm² + PE", devs: [dev("itm", {In: 32})]}),
+      sal({nombre: "Reserva", fase: "RST", carga: "res", kw: 0, cable: "—", devs: [dev("itm", {In: 20})]}),
+    ],
+  };
+}
+
+function nuevo(tipo) {
+  const bi = tipo === "bi";
+  return {
+    v: 1,
+    tab: {tipo, nombre: "TS · Nuevo", obra: "", alim: bi ? "2x6 mm² + PE" : "4x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 1},
+    ent: [dev("itm", {In: bi ? 32 : 40, tag: "Q0"})],
+    sal: [sal({nombre: "Circuito 1", fase: bi ? "R" : "R", devs: [dev("itm", {In: 16})]})],
+  };
+}
+
+const KEY = "unifilar.tablero.v1";
+let state;
+try { state = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { state = null; }
+if (!state || !state.tab || !Array.isArray(state.sal)) state = ejemplo("tetra");
+let sel = null;          // "entrada" | id de salida
+let zoom = 1, fitMode = true;
+
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} }
+
+/* ============================================================
+   Utilidades de modelo
+   ============================================================ */
+const isBi = () => state.tab.tipo === "bi";
+function find(id, list = state.sal, parent = null) {
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    if (s.id === id) return {s, list, i, parent};
+    const r = find(id, s.hijos, s);
+    if (r) return r;
+  }
+  return null;
+}
+function walk(fn, list = state.sal, parent = null, depth = 0) {
+  for (const s of list) { fn(s, parent, depth); walk(fn, s.hijos, s, depth + 1); }
+}
+function effFase(s, parentFase) {
+  if (isBi()) return "L";
+  if (parentFase && parentFase !== "RST") return parentFase;
+  return s.fase || "R";
+}
+function polosAuto(fase) { return isBi() ? 2 : (fase === "RST" ? 4 : 2); }
+function polosDe(d, fase) { return d.polos && d.polos !== "auto" ? +d.polos : polosAuto(fase); }
+
+const nf = (n, d = 2) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString("es-AR", {minimumFractionDigits: d, maximumFractionDigits: d});
+const num = (v) => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : 0; };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function corriente(kw, cos, fase) {
+  if (!(kw > 0)) return 0;
+  const c = cos > 0 ? cos : 1;
+  return fase === "RST" ? kw * 1000 / (Math.sqrt(3) * 380 * c) : kw * 1000 / (220 * c);
+}
+
+/* Análisis: fases efectivas, designaciones, corrientes y advertencias */
+function analizar() {
+  const info = new Map();
+  let nc = 0, ng = 0;
+  const entProt = protIn(state.ent);
+  const entId = state.ent.some(d => d.tipo === "id");
+
+  function rec(list, parentFase, ancProt, ancId) {
+    for (const s of list) {
+      const fase = effFase(s, parentFase);
+      const leaf = s.hijos.length === 0;
+      const tag = s.tag || (leaf ? "C" + (++nc) : "G" + (++ng));
+      const own = protIn(s.devs);
+      const hasId = ancId || s.devs.some(d => d.tipo === "id");
+      const nodo = {fase, tag, leaf, own, I: 0, kw: 0, ph: {R: 0, S: 0, T: 0, L: 0}, warns: []};
+      info.set(s.id, nodo);
+      if (leaf) {
+        nodo.kw = s.carga === "res" ? 0 : num(s.kw);
+        nodo.I = corriente(nodo.kw, num(s.cos), fase);
+        if (fase === "RST") { nodo.ph.R = nodo.ph.S = nodo.ph.T = nodo.I; }
+        else nodo.ph[fase] = nodo.I;
+      } else {
+        rec(s.hijos, fase, own ?? ancProt, hasId);
+        for (const h of s.hijos) {
+          const hi = info.get(h.id);
+          nodo.kw += hi.kw;
+          for (const k in nodo.ph) nodo.ph[k] += hi.ph[k];
+        }
+        nodo.I = Math.max(nodo.ph.R, nodo.ph.S, nodo.ph.T, nodo.ph.L);
+      }
+      // advertencias
+      if (own != null && nodo.I > own + 1e-9) nodo.warns.push(["bad", `Corriente de cálculo ${nf(nodo.I, 1)} A supera la protección de ${own} A.`]);
+      if (leaf && own == null && ancProt == null && entProt == null && s.carga !== "res") nodo.warns.push(["bad", "El circuito no tiene protección contra sobrecorriente (ITM, fusible o guardamotor)."]);
+      if (leaf && own == null && s.carga !== "res" && (ancProt != null || entProt != null)) nodo.warns.push(["w", "Sin protección propia: queda protegido sólo por el aparato aguas arriba."]);
+      const up = ancProt ?? entProt;
+      if (own != null && up != null && own >= up) nodo.warns.push(["w", `Selectividad: ${own} A igual o mayor que los ${up} A aguas arriba.`]);
+      if (leaf && fase !== "RST" && !hasId && !entId && s.carga !== "res" && s.carga !== "st") nodo.warns.push(["w", "Circuito terminal sin diferencial de 30 mA (AEA 90364 lo exige en circuitos de tomas e iluminación)."]);
+    }
+  }
+  rec(state.sal, null, null, false);
+
+  const tot = {R: 0, S: 0, T: 0, L: 0, kwR: 0, kwS: 0, kwT: 0, kw: 0};
+  for (const s of state.sal) {
+    const n = info.get(s.id);
+    for (const k of ["R","S","T","L"]) tot[k] += n.ph[k];
+    tot.kw += n.kw;
+  }
+  // kW por fase (cargas tri se reparten en tercios)
+  walk((s, p) => {
+    const n = info.get(s.id);
+    if (!n.leaf) return;
+    if (n.fase === "RST") { tot.kwR += n.kw / 3; tot.kwS += n.kw / 3; tot.kwT += n.kw / 3; }
+    else if (n.fase !== "L") tot["kw" + n.fase] += n.kw;
+  });
+  const entWarn = [];
+  const fs = Math.min(1, Math.max(0.1, num(state.tab.fs) || 1));
+  const Iinst = isBi() ? tot.L : Math.max(tot.R, tot.S, tot.T);
+  const Igen = Iinst * fs;
+  if (entProt != null && Igen > entProt) entWarn.push(["bad", `La corriente demandada ${nf(Igen, 1)} A (fs ${nf(fs, 2)}) supera la protección general de ${entProt} A.`]);
+  if (entProt == null) entWarn.push(["w", "La entrada no tiene interruptor general ni fusibles."]);
+  return {info, tot, Igen, Iinst, fs, entWarn, entProt};
+}
+function protIn(devs) {
+  let m = null;
+  for (const d of devs) {
+    if (d.tipo === "itm" || d.tipo === "fus") m = m == null ? +d.In : Math.min(m, +d.In);
+    if (d.tipo === "gm") { const r = String(d.rango).match(/([\d.,]+)\s*A?\s*$/); if (r) { const v = num(r[1]); m = m == null ? v : Math.min(m, v); } }
+  }
+  return m;
+}
+
+/* ============================================================
+   Dibujo SVG
+   ============================================================ */
+let INK = "#15191E", PAPER = "#FFFFFF";
+const SW = 1.6;
+const L = (x1, y1, x2, y2, ex = "") => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="${SW}" stroke-linecap="round" ${ex}/>`;
+const P = (d, ex = "") => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${SW}" stroke-linecap="round" stroke-linejoin="round" ${ex}/>`;
+const R = (x, y, w, h, ex = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}" ${ex}/>`;
+const C = (cx, cy, r, ex = "") => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}" ${ex}/>`;
+const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" font-size="${o.size || 10}" text-anchor="${o.anchor || "start"}" font-weight="${o.weight || 400}" fill="${o.fill || INK}" font-family="${o.family || MONO}"${o.ls ? ` letter-spacing="${o.ls}"` : ""}>${esc(s)}</text>`;
+const X = (cx, cy, r = 4) => L(cx - r, cy - r, cx + r, cy + r) + L(cx - r, cy + r, cx + r, cy - r);
+const DASH = `stroke-dasharray="3 3"`;
+
+const DH = 64;   // alto de un aparato
+function sym(d, cx, y, polos) {
+  let s = "";
+  const top = (a = 18) => L(cx, y, cx, y + a);
+  const bot = (b = 44) => L(cx, y + b, cx, y + DH);
+  const blade = () => L(cx, y + 44, cx - 12, y + 21);
+  const full = () => L(cx, y, cx, y + DH);
+  switch (d.tipo) {
+    case "itm": s += top() + bot() + blade() + X(cx, y + 18); break;
+    case "id":
+      s += top() + bot() + blade() + L(cx - 4, y + 18, cx + 4, y + 18);
+      s += `<ellipse cx="${cx}" cy="${y + 54}" rx="9" ry="3.8" fill="none" stroke="${INK}" stroke-width="${SW}"/>`;
+      s += P(`M${cx - 9} ${y + 54} H${cx - 22} V${y + 32} H${cx - 7}`, DASH);
+      break;
+    case "secc": s += top() + bot() + blade() + L(cx - 5, y + 18, cx + 5, y + 18) + `<circle cx="${cx}" cy="${y + 44}" r="2.4" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}"/>`; break;
+    case "fus": s += full() + R(cx - 5.5, y + 16, 11, 32) + L(cx, y + 16, cx, y + 48); break;
+    case "gm":
+      s += top() + bot() + blade() + X(cx, y + 18);
+      s += P(`M${cx - 7} ${y + 32} H${cx - 22}`, DASH) + R(cx - 42, y + 25, 20, 14) + T(cx - 32, y + 35, "I>", {size: 8, anchor: "middle"});
+      break;
+    case "cont": s += top(14) + bot() + blade() + P(`M${cx} ${y + 14} A4 4 0 0 0 ${cx} ${y + 22}`); break;
+    case "term": s += full() + R(cx - 8, y + 16, 16, 32) + P(`M${cx} ${y + 16} V${y + 25} H${cx - 4} V${y + 39} H${cx} V${y + 48}`); break;
+    case "med": s += top(16) + bot(46) + R(cx - 16, y + 16, 32, 30) + T(cx, y + 34.5, "kWh", {size: 8.5, anchor: "middle", weight: 600}); break;
+    case "dps":
+      s += full() + `<circle cx="${cx}" cy="${y + 18}" r="2.3" fill="${INK}"/>` + L(cx, y + 18, cx - 26, y + 18) + L(cx - 26, y + 18, cx - 26, y + 26);
+      s += R(cx - 31, y + 26, 10, 20) + L(cx - 34, y + 43, cx - 18, y + 29) + L(cx - 26, y + 46, cx - 26, y + 52);
+      s += L(cx - 33, y + 52, cx - 19, y + 52) + L(cx - 30, y + 55.5, cx - 22, y + 55.5) + L(cx - 27.5, y + 59, cx - 24.5, y + 59);
+      break;
+    case "inst": {
+      s += full() + `<circle cx="${cx}" cy="${y + 18}" r="2.3" fill="${INK}"/>` + L(cx, y + 18, cx - 26, y + 18) + L(cx - 26, y + 18, cx - 26, y + 27);
+      s += C(cx - 26, y + 37, 10);
+      const lab = {"Voltímetro": "V", "Amperímetro": "A", "Multimedidor": "PM", "Luz piloto": "X"}[d.instr] || "V";
+      if (lab === "X") s += X(cx - 26, y + 37, 6);
+      else s += T(cx - 26, y + 40.5, lab, {size: lab.length > 1 ? 7.5 : 9.5, anchor: "middle", weight: 600});
+      break;
+    }
+  }
+  if (!DEV[d.tipo].side && polos) {
+    for (let i = 0; i < polos; i++) {
+      const o = (i - (polos - 1) / 2) * 3.6;
+      s += L(cx - 5, y + 9 + o + 2.5, cx + 5, y + 9 + o - 2.5, `stroke-width="1.2"`);
+    }
+  }
+  return s;
+}
+
+function devLabel(d, polos) {
+  const p = DEV[d.tipo].side ? "" : `${polos}x`;
+  const t = d.tag ? d.tag + " " : "";
+  switch (d.tipo) {
+    case "itm": return [`${t}ITM ${p}${d.In} A`, `Curva ${d.curva} · ${d.icc} kA`];
+    case "id": return [`${t}ID ${p}${d.In} A`, `${d.sens} mA · Clase ${d.clase}`];
+    case "secc": return [`${t}Secc. ${p}${d.In} A`, "Bajo carga"];
+    case "fus": return [`${t}Fus. ${p}${d.In} A`, `${d.clasef} · ${d.formato}`];
+    case "gm": return [`${t}Guardamotor ${p.replace("x", "P")}`.trim(), `${d.rango} · ${d.icc} kA`];
+    case "cont": return [`${t}Contactor ${p}${d.In} A`, `AC-3 · Bob. ${d.bobina}`];
+    case "term": return [`${t}Relé térmico`, `${d.rango}`];
+    case "med": return [`${t}Medidor`, d.medidor];
+    case "dps": return [`${t}DPS Clase ${d.clase}`, `Imax ${d.imax} kA`];
+    case "inst": return [`${t}${d.instr}`, ""];
+  }
+  return ["", ""];
+}
+/* Completa claves faltantes en proyectos viejos */
+function norm(d) {
+  for (const [k, v] of Object.entries(DEV[d.tipo].def)) if (d[k] == null) d[k] = v;
+  return d;
+}
+
+function loadSym(tipo, cx, y, fase, nombre) {
+  let s = "";
+  switch (tipo) {
+    case "iug": s += L(cx, y, cx, y + 12) + C(cx, y + 24, 12) + X(cx, y + 24, 8.2); break;
+    case "tug": s += L(cx, y, cx, y + 16) + P(`M${cx - 13} ${y + 30} A13 13 0 0 1 ${cx + 13} ${y + 30}`) + L(cx - 13, y + 30, cx + 13, y + 30); break;
+    case "tue": s += L(cx, y, cx, y + 16) + P(`M${cx - 13} ${y + 30} A13 13 0 0 1 ${cx + 13} ${y + 30}`) + L(cx - 13, y + 30, cx + 13, y + 30) + `<path d="M${cx - 13} ${y + 30} A13 13 0 0 1 ${cx + 13} ${y + 30} Z" fill="${INK}"/>`; break;
+    case "motor": s += L(cx, y, cx, y + 10) + C(cx, y + 25, 15) + T(cx, y + 25, "M", {size: 12, anchor: "middle", weight: 600}) + T(cx, y + 35, fase === "RST" ? "3~" : "1~", {size: 8, anchor: "middle"}); break;
+    case "aa": s += L(cx, y, cx, y + 10) + R(cx - 16, y + 10, 32, 28) + T(cx, y + 28, "AA", {size: 11, anchor: "middle", weight: 600}); break;
+    case "st": s += L(cx, y, cx, y + 10) + R(cx - 26, y + 10, 52, 30) + R(cx - 23, y + 13, 46, 24, `stroke-width="0.8"`) + T(cx, y + 29, "ST", {size: 11, anchor: "middle", weight: 600}); break;
+    case "carga": s += L(cx, y, cx, y + 10) + R(cx - 7, y + 10, 14, 28) + L(cx, y + 38, cx, y + 44); break;
+    case "res": s += L(cx, y, cx, y + 20) + `<circle cx="${cx}" cy="${y + 23}" r="3" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}"/>`; break;
+  }
+  return s;
+}
+
+function faseTag(fase, cx, y) {
+  const letras = fase === "RST" ? ["R", "S", "T", "N"] : fase === "L" ? ["L", "N"] : [fase, "N"];
+  const w = letras.length * 8 + 6;
+  let s = `<rect x="${cx + 6}" y="${y - 8}" width="${w}" height="12" rx="2" fill="#F3F5F7" stroke="#C9D1D8" stroke-width="0.8"/>`;
+  letras.forEach((l, i) => { s += T(cx + 10 + i * 8 + 2.5, y + 1.5, l, {size: 9, weight: 600, anchor: "middle", fill: PHC[l]}); });
+  return s;
+}
+
+function wrap(txt, max) {
+  const words = String(txt).split(/\s+/); const out = []; let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > max && cur) { out.push(cur); cur = w; } else cur = (cur + " " + w).trim();
+  }
+  if (cur) out.push(cur);
+  if (out.length > 2) { out.length = 2; out[1] = out[1].slice(0, max - 1) + "…"; }
+  return out;
+}
+
+const COLW = 172, M = 28;
+function buildSVG(an, forExport = false) {
+  INK = "#15191E"; PAPER = "#FFFFFF";
+  const bi = isBi();
+  const width = new Map();
+  const meas = (s) => { const w = s.hijos.length ? Math.max(COLW, s.hijos.reduce((a, h) => a + meas(h), 0)) : COLW; width.set(s.id, w); return w; };
+  const totalW = state.sal.reduce((a, s) => a + meas(s), 0) || COLW;
+
+  const top = M + 44;
+  const yEnt0 = top + 56;
+  const yBus = yEnt0 + state.ent.length * DH + 26;
+  let out = "", hits = "", selRect = "";
+  const leaves = [];
+  const groups = [];
+
+  // --- salidas (primera pasada, calcula posiciones) ---
+  function place(s, x0, yTop, pFase) {
+    const w = width.get(s.id), cx = Math.round(x0 + w / 2);
+    const n = an.info.get(s.id);
+    const g = {s, x0, w, cx, yTop, parts: ""};
+    let y = yTop, p = "";
+    p += L(cx, y, cx, y + 30) + faseTag(n.fase, cx, y + 16);
+    y += 30;
+    for (const d of s.devs) {
+      const pol = polosDe(d, n.fase);
+      p += sym(d, cx, y, pol);
+      const [a, b] = devLabel(d, pol);
+      p += T(cx + 16, y + 30, a, {size: 9.5, weight: 600}) + (b ? T(cx + 16, y + 42, b, {size: 8.5, fill: "#4A5561"}) : "");
+      y += DH;
+    }
+    g.parts = p;
+    groups.push(g);
+    if (s.hijos.length) {
+      const yb = y + 14;
+      let xc = x0 + (w - s.hijos.reduce((a, h) => a + width.get(h.id), 0)) / 2;
+      const cxs = [];
+      g.parts += L(cx, y, cx, yb);
+      for (const h of s.hijos) { cxs.push(Math.round(xc + width.get(h.id) / 2)); place(h, xc, yb, n.fase); xc += width.get(h.id); }
+      if (cxs.length > 1) g.parts += `<line x1="${Math.min(cxs[0], cx) - 10}" y1="${yb}" x2="${Math.max(cxs[cxs.length - 1], cx) + 10}" y2="${yb}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+      g.yEnd = yb;
+    } else {
+      leaves.push({s, cx, y, n, g});
+      g.yEnd = y;
+    }
+  }
+  let x = M;
+  for (const s of state.sal) { place(s, x, yBus, null); x += width.get(s.id); }
+
+  const yLoad = Math.max(yBus + 60, ...leaves.map(l => l.y)) + 12;
+  const yLab = yLoad + 58;
+  const yTable = yLab + 72;
+
+  // --- tabla de cargas ---
+  const rows = [];
+  walk((s) => { const n = an.info.get(s.id); if (n.leaf) rows.push({s, n}); });
+  const cols = [["Circ.", 44], ["Descripción", 190], ["Fase", 44], ["Protección", 150], ["Cable", 130], ["P kW", 56], ["I A", 56]];
+  const tabW = cols.reduce((a, c) => a + c[1], 0);
+  const RH = 17;
+  const tabH = (rows.length + 2) * RH + 22;
+  const rotW = 300, rotH = 128;
+
+  const drawW = totalW + 2 * M;
+  const W = Math.max(drawW, tabW + rotW + 3 * M, 760);
+  const sideBySide = tabW + rotW + 3 * M <= W;
+  const H = yTable + (sideBySide ? Math.max(tabH, rotH) : tabH + rotH + 20) + M + 8;
+
+  // centrar esquema si la hoja es más ancha
+  const dx = Math.round((W - drawW) / 2);
+
+  // --- entrada ---
+  const entCx = Math.round(dx + M + totalW / 2);
+  let ent = "";
+  ent += T(entCx, top - 12, "ALIMENTACIÓN", {size: 9, anchor: "middle", weight: 600, ls: "0.12em", fill: "#4A5561"});
+  ent += T(entCx, top + 2, state.tab.alim || "—", {size: 10, anchor: "middle"});
+  ent += `<path d="M${entCx - 6} ${top + 14} L${entCx} ${top + 22} L${entCx + 6} ${top + 14}" fill="none" stroke="${INK}" stroke-width="${SW}"/>`;
+  ent += L(entCx, top + 14, entCx, yEnt0) + faseTag(bi ? "L" : "RST", entCx, top + 42);
+    state.ent.forEach((d, i) => {
+    const y = yEnt0 + i * DH;
+    const pol = polosDe(d, bi ? "L" : "RST");
+    ent += sym(d, entCx, y, pol);
+    const [a, b] = devLabel(d, pol);
+    ent += T(entCx + 16, y + 30, a, {size: 9.5, weight: 600}) + (b ? T(entCx + 16, y + 42, b, {size: 8.5, fill: "#4A5561"}) : "");
+  });
+  ent += L(entCx, yEnt0 + state.ent.length * DH, entCx, yBus);
+  const entY1 = top - 26, entY2 = yBus - 4;
+  hits += `<rect data-sel="entrada" x="${entCx - 70}" y="${entY1}" width="160" height="${entY2 - entY1}" fill="transparent"/>`;
+  if (sel === "entrada") selRect += `<rect x="${entCx - 70}" y="${entY1}" width="160" height="${entY2 - entY1}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
+
+  // --- barras ---
+  const cxsTop = groups.filter(g => state.sal.includes(g.s)).map(g => g.cx + dx);
+  const bx1 = Math.min(entCx, ...cxsTop) - 22, bx2 = Math.max(entCx, ...cxsTop) + 22;
+  let bus = `<line x1="${bx1}" y1="${yBus}" x2="${bx2}" y2="${yBus}" stroke="${INK}" stroke-width="5" stroke-linecap="square"/>`;
+  bus += T(bx1, yBus - 9, bi ? "Barras L-N · 220 V · 50 Hz" : "Barras R-S-T-N · 3x380/220 V · 50 Hz", {size: 9, weight: 600, fill: "#4A5561"});
+  bus += T(bx1, yBus + 16, "PE", {size: 9, weight: 600, fill: "#3E8E41"});
+
+  // --- ramas ---
+  let ramas = "";
+  for (const g of groups) {
+    const isSel = sel === g.s.id;
+    const x0 = g.x0 + dx, rx = x0 + 3, ry = g.yTop + 4;
+    const yBottom = g.s.hijos.length ? g.yEnd - 4 : yLab + 40;
+    hits += `<rect data-sel="${g.s.id}" x="${rx}" y="${ry}" width="${g.w - 6}" height="${Math.max(10, yBottom - ry)}" fill="transparent"/>`;
+    if (isSel) {
+      const yb = yLab + 40;
+      selRect += `<rect x="${rx}" y="${ry}" width="${g.w - 6}" height="${yb - ry}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
+    }
+    ramas += `<g transform="translate(${dx} 0)">${g.parts}</g>`;
+  }
+  for (const l of leaves) {
+    const cx = l.cx + dx;
+    ramas += L(cx, l.y, cx, yLoad) + loadSym(l.s.carga, cx, yLoad, l.n.fase, l.s.nombre);
+    const warn = l.n.warns.some(w => w[0] === "bad") ? "#B42318" : l.n.warns.length ? "#A55A08" : null;
+    ramas += T(cx, yLab, l.n.tag, {size: 12, anchor: "middle", weight: 700, family: COND});
+    if (warn) ramas += `<path d="M${cx + 16} ${yLab - 1} l5 -9 l5 9 z" fill="${warn}"/>` + T(cx + 21, yLab - 1.5, "!", {size: 7, anchor: "middle", weight: 700, fill: "#fff"});
+    const nm = wrap(l.s.nombre || LOAD[l.s.carga].nombre, 24);
+    nm.forEach((t, i) => { ramas += T(cx, yLab + 13 + i * 11, t, {size: 9.5, anchor: "middle", family: COND}); });
+    const yy = yLab + 13 + nm.length * 11;
+    ramas += T(cx, yy + 1, l.s.cable || "", {size: 8.5, anchor: "middle", fill: "#4A5561"});
+    if (l.s.carga !== "res") ramas += T(cx, yy + 13, `${nf(l.n.kw, 2)} kW · ${nf(l.n.I, 1)} A`, {size: 8.5, anchor: "middle", weight: 600});
+  }
+  // etiquetas de grupos (junto a la subbarra)
+  for (const g of groups) {
+    if (!g.s.hijos.length) continue;
+    const n = an.info.get(g.s.id);
+    ramas += T(g.x0 + dx + 8, g.yEnd - 8, `${n.tag} · ${g.s.nombre}`, {size: 9, weight: 600, family: COND, fill: "#4A5561"});
+  }
+
+  // --- tabla ---
+  const tx = M, ty = yTable;
+  let tab = T(tx, ty - 8, "CUADRO DE CARGAS", {size: 9.5, weight: 700, ls: "0.1em"});
+  let cxp = tx;
+  const heads = cols.map(([h, w]) => { const o = {h, x: cxp, w}; cxp += w; return o; });
+  tab += `<rect x="${tx}" y="${ty}" width="${tabW}" height="${RH}" fill="#EEF1F4" stroke="${INK}" stroke-width="0.8"/>`;
+  heads.forEach(c => { tab += T(c.x + 5, ty + 12, c.h, {size: 8.5, weight: 700}); });
+  const prot = (s) => {
+    const parts = [];
+    for (const d of s.devs) {
+      const pol = polosDe(d, an.info.get(s.id).fase);
+      if (d.tipo === "itm") parts.push(`ITM ${pol}x${d.In} ${d.curva}`);
+      if (d.tipo === "fus") parts.push(`Fus ${d.In} ${d.clasef || "gG"}`);
+      if (d.tipo === "gm") parts.push(`GM ${d.rango}`);
+      if (d.tipo === "id") parts.push(`ID ${d.sens}mA`);
+    }
+    return parts.join(" + ") || "—";
+  };
+  rows.forEach((r, i) => {
+    const y = ty + RH * (i + 1);
+    tab += `<rect x="${tx}" y="${y}" width="${tabW}" height="${RH}" fill="${i % 2 ? "#F8F9FB" : "#FFFFFF"}" stroke="${INK}" stroke-width="0.4"/>`;
+    const fz = r.n.fase === "L" ? "L" : r.n.fase;
+    const vals = [r.n.tag, (r.s.nombre || "").slice(0, 32), fz, prot(r.s).slice(0, 26), (r.s.cable || "").slice(0, 22), r.s.carga === "res" ? "—" : nf(r.n.kw, 2), r.s.carga === "res" ? "—" : nf(r.n.I, 1)];
+    vals.forEach((v, j) => {
+      const c = heads[j]; const right = j >= 5;
+      tab += T(right ? c.x + c.w - 5 : c.x + 5, y + 12, v, {size: 8.5, anchor: right ? "end" : "start", weight: j === 0 ? 600 : 400, family: j === 1 ? COND : MONO, fill: j === 2 && PHC[v] ? PHC[v] : INK});
+    });
+  });
+  const yt = ty + RH * (rows.length + 1);
+  tab += `<rect x="${tx}" y="${yt}" width="${tabW}" height="${RH}" fill="#EEF1F4" stroke="${INK}" stroke-width="0.8"/>`;
+  tab += T(tx + 5, yt + 12, "TOTAL INSTALADO", {size: 8.5, weight: 700});
+  tab += T(heads[5].x + heads[5].w - 5, yt + 12, nf(an.tot.kw, 2), {size: 8.5, weight: 700, anchor: "end"});
+  tab += T(heads[6].x + heads[6].w - 5, yt + 12, nf(an.Iinst, 1), {size: 8.5, weight: 700, anchor: "end"});
+  const dem = ` · Demanda (fs ${nf(an.fs, 2)}): ${nf(an.tot.kw * an.fs, 2)} kW · ${nf(an.Igen, 1)} A`;
+  const balTxt = bi ? `Corriente instalada en L: ${nf(an.tot.L, 1)} A${dem}` :
+    `R: ${nf(an.tot.R, 1)} A · S: ${nf(an.tot.S, 1)} A · T: ${nf(an.tot.T, 1)} A · Deseq. ${nf(deseq(an), 0)} %${dem}`;
+  tab += T(tx, yt + RH + 14, balTxt, {size: 8.5, fill: "#4A5561"});
+  tab += T(tx, yt + RH + 26, "I calculada con U = 220 V (monofásica) o √3·380 V (trifásica) y el cos φ de cada carga. Suma aritmética de corrientes.", {size: 7.5, fill: "#6A7580", family: COND});
+
+  // --- rótulo ---
+  const rx = W - M - rotW, ry = sideBySide ? ty : ty + tabH + 20;
+  const tb = state.tab;
+  let rot = `<rect x="${rx}" y="${ry}" width="${rotW}" height="${rotH}" fill="#FFFFFF" stroke="${INK}" stroke-width="1.4"/>`;
+  rot += `<line x1="${rx}" y1="${ry + 40}" x2="${rx + rotW}" y2="${ry + 40}" stroke="${INK}" stroke-width="0.8"/>`;
+  rot += T(rx + 10, ry + 16, "TABLERO", {size: 7.5, weight: 600, fill: "#4A5561", ls: "0.1em"});
+  rot += T(rx + 10, ry + 33, (tb.nombre || "—").slice(0, 30), {size: 15, weight: 700, family: COND});
+  const cells = [
+    ["OBRA", tb.obra || "—", 0, 0, 2],
+    ["SISTEMA", bi ? "Monofásico 220 V · 50 Hz" : "Trifásico 3x380/220 V · 50 Hz", 0, 1, 2],
+    ["DIBUJÓ", tb.dibujo || "—", 0, 2, 1], ["FECHA", fmtFecha(tb.fecha), 1, 2, 1],
+    ["ESCALA", "S/E", 0, 3, 1], ["PLANO", tb.plano || "—", 1, 3, 1],
+  ];
+  const ch = 22;
+  for (const [k, v, c, r, span] of cells) {
+    const cx0 = rx + c * rotW / 2, cy0 = ry + 40 + r * ch;
+    rot += `<rect x="${cx0}" y="${cy0}" width="${rotW / 2 * span}" height="${ch}" fill="none" stroke="${INK}" stroke-width="0.5"/>`;
+    rot += T(cx0 + 6, cy0 + 9, k, {size: 6.5, weight: 600, fill: "#4A5561", ls: "0.08em"});
+    rot += T(cx0 + 6, cy0 + 19, String(v).slice(0, span === 2 ? 44 : 20), {size: 8.5});
+  }
+
+  const frame = `<rect x="10" y="10" width="${W - 20}" height="${H - 20}" fill="none" stroke="${INK}" stroke-width="1"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${Math.round(W * (forExport ? 1 : zoom))}" height="${Math.round(H * (forExport ? 1 : zoom))}" font-family="${MONO}">`
+    + `<rect width="${W}" height="${H}" fill="#FFFFFF"/>` + frame + selRect + ent + bus + ramas + tab + rot
+    + (forExport ? "" : `<g>${hits}</g>`) + `</svg>`;
+  return {svg, W, H};
+}
+function deseq(an) {
+  const v = [an.tot.R, an.tot.S, an.tot.T]; const avg = (v[0] + v[1] + v[2]) / 3;
+  return avg > 0 ? (Math.max(...v) - Math.min(...v)) / avg * 100 : 0;
+}
+function fmtFecha(f) { if (!f) return "—"; const [y, m, d] = f.split("-"); return d && m && y ? `${d}/${m}/${y}` : f; }
+
+/* Íconos pequeños para la paleta y las tarjetas */
+function icon(tipo, w = 34, h = 42) {
+  const oi = INK, op = PAPER; INK = "currentColor"; PAPER = "none";
+  const d = norm({tipo, ...DEV[tipo].def});
+  const body = sym(d, 46, 0, DEV[tipo].side ? 0 : 2);
+  INK = oi; PAPER = op;
+  return `<svg viewBox="4 -2 60 68" width="${w}" height="${h}" aria-hidden="true">${body}</svg>`;
+}
+
+/* ============================================================
+   UI
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+let AN;
+
+function renderAll() { AN = analizar(); renderTop(); renderTab(); renderTree(); renderBal(); renderInsp(); renderSheet(); persist(); }
+function renderLight() { AN = analizar(); renderTree(); renderBal(); renderInspCalc(); renderSheet(); persist(); }
+
+function renderTop() {
+  $("tipo-bi").setAttribute("aria-pressed", String(isBi()));
+  $("tipo-tetra").setAttribute("aria-pressed", String(!isBi()));
+}
+
+function field(id, label, value, attrs = "", cls = "") {
+  return `<div class="f ${cls}"><label for="${id}">${label}</label><input id="${id}" value="${esc(value)}" ${attrs}></div>`;
+}
+function selectF(id, label, value, opts, attrs = "", cls = "") {
+  const o = opts.map(op => { const [v, t] = Array.isArray(op) ? op : [op, op]; return `<option value="${esc(v)}"${String(v) === String(value) ? " selected" : ""}>${esc(t)}</option>`; }).join("");
+  return `<div class="f ${cls}"><label for="${id}">${label}</label><select id="${id}" ${attrs}>${o}</select></div>`;
+}
+
+function renderTab() {
+  const t = state.tab;
+  $("tabform").innerHTML =
+    field("t-nombre", "Designación", t.nombre, `data-t="nombre"`, "full") +
+    field("t-obra", "Obra", t.obra, `data-t="obra"`, "full") +
+    field("t-alim", "Alimentación", t.alim, `data-t="alim"`, "full") +
+    field("t-dibujo", "Dibujó", t.dibujo, `data-t="dibujo"`) +
+    field("t-plano", "Plano N°", t.plano, `data-t="plano"`) +
+    field("t-fecha", "Fecha", t.fecha, `data-t="fecha" type="date"`) +
+    field("t-fs", "Factor simultaneidad", t.fs ?? 1, `data-t="fs" inputmode="decimal" class="num"`);
+}
+
+function phChip(fase) {
+  const l = fase === "RST" ? ["R", "S", "T"] : [fase];
+  return `<span class="ph">${l.map(x => `<i class="p${x}">${x}</i>`).join("")}</span>`;
+}
+function renderTree() {
+  const li = (s) => {
+    const n = AN.info.get(s.id);
+    const bad = n.warns.length ? `<span class="dot" title="${esc(n.warns.map(w => w[1]).join(" "))}" style="${n.warns.some(w => w[0] === "bad") ? "" : "background:var(--warn)"}"></span>` : "";
+    return `<li><button type="button" class="node" data-go="${s.id}" aria-current="${sel === s.id}"><span class="tag">${esc(n.tag)}</span><span class="nm">${esc(s.nombre || LOAD[s.carga].nombre)}</span>${bad}${phChip(n.fase)}</button>${s.hijos.length ? `<ul>${s.hijos.map(li).join("")}</ul>` : ""}</li>`;
+  };
+  const entBad = AN.entWarn.length ? `<span class="dot" style="${AN.entWarn.some(w => w[0] === "bad") ? "" : "background:var(--warn)"}"></span>` : "";
+  $("tree").innerHTML = `<li><button type="button" class="node" data-go="entrada" aria-current="${sel === "entrada"}"><span class="tag">E</span><span class="nm">Entrada y protección general</span>${entBad}${phChip(isBi() ? "L" : "RST")}</button></li>` + state.sal.map(li).join("");
+}
+
+function renderBal() {
+  const t = AN.tot;
+  if (isBi()) {
+    $("bal-title").textContent = "Carga del tablero";
+    const pr = AN.entProt;
+    const pct = pr ? Math.min(100, AN.Igen / pr * 100) : 0;
+    $("bal").innerHTML = `<div class="row"><i class="ph"><i class="pL">L</i></i><div class="bar"><b style="width:${pct}%;background:${PHC.L}"></b></div><span class="v">${nf(AN.Igen, 1)} A</span></div>
+      <div class="foot"><span>Instalado <b class="num">${nf(t.kw, 2)} kW</b></span><span>${pr ? `Demanda ${nf(pct, 0)} % de ${pr} A (fs ${nf(AN.fs, 2)})` : "Sin protección general"}</span></div>`;
+    return;
+  }
+  $("bal-title").textContent = "Balance de fases";
+  const mx = Math.max(t.R, t.S, t.T, AN.entProt || 0, 1);
+  const row = (f) => `<div class="row"><span class="ph"><i class="p${f}">${f}</i></span><div class="bar"><b style="width:${t[f] / mx * 100}%;background:${f === "S" ? "var(--ink)" : PHC[f]}"></b></div><span class="v">${nf(t[f], 1)} A · ${nf(t["kw" + f], 1)} kW</span></div>`;
+  const d = deseq(AN);
+  const cls = d <= 10 ? "ok" : d <= 20 ? "warn" : "bad";
+  $("bal").innerHTML = row("R") + row("S") + row("T") +
+    `<div class="foot"><span>Instalado <b class="num">${nf(t.kw, 2)} kW</b></span><span>Desequilibrio <span class="pill ${cls}">${nf(d, 0)} %</span></span></div>`;
+}
+
+function devCard(d, fase, idx, len, scope) {
+  norm(d);
+  const def = DEV[d.tipo];
+  let f = "";
+  f += field(`d-${d.id}-tag`, "Referencia", d.tag, `data-d="${d.id}" data-k="tag" placeholder="Q1, K1…"`);
+  if (!def.side) {
+    const au = polosAuto(fase);
+    f += selectF(`d-${d.id}-polos`, "Polos", d.polos, [["auto", `Auto (${au}P)`], ["1", "1P"], ["2", "2P"], ["3", "3P"], ["4", "4P"]], `data-d="${d.id}" data-k="polos"`);
+  }
+  for (const [k0, lab, opts] of def.f) {
+    const k = k0;
+    const v = d[k];
+    if (opts === "text") f += field(`d-${d.id}-${k}`, lab, v, `data-d="${d.id}" data-k="${k}"`);
+    else f += selectF(`d-${d.id}-${k}`, lab, v, opts, `data-d="${d.id}" data-k="${k}"`);
+  }
+  return `<div class="dev"><header>${icon(d.tipo, 22, 30)}<b>${def.nombre}</b><span class="acts">
+    <button type="button" class="ic" data-mv="${d.id}" data-dir="-1" aria-label="Subir" ${idx === 0 ? "disabled" : ""}>↑</button>
+    <button type="button" class="ic" data-mv="${d.id}" data-dir="1" aria-label="Bajar" ${idx === len - 1 ? "disabled" : ""}>↓</button>
+    <button type="button" class="ic del" data-rm="${d.id}" aria-label="Quitar">✕</button></span></header>
+    <div class="grid2">${f}</div></div>`;
+}
+function palette() {
+  return `<div class="pal">${DEV_ORDER.map(t => `<button type="button" data-add="${t}" title="${DEV[t].nombre}">${icon(t)}<span>${DEV[t].nombre}</span></button>`).join("")}</div>`;
+}
+function warnsHtml(ws) {
+  return ws.length ? `<div class="warns">${ws.map(([k, m]) => `<div class="${k === "w" ? "w" : ""}">${esc(m)}</div>`).join("")}</div>` : "";
+}
+
+function renderInsp() {
+  const el = $("insp");
+  if (!sel || (sel !== "entrada" && !find(sel))) sel = "entrada";
+  if (sel === "entrada") {
+    const fase = isBi() ? "L" : "RST";
+    el.innerHTML = `
+      <div class="insp-head"><span class="big">Entrada</span><span class="sub">Acometida y protección general</span></div>
+      <div id="insp-calc">${calcHtml()}</div>
+      <section class="sec"><h2>Alimentación</h2><div class="grid2">${field("e-alim", "Desde / conductor", state.tab.alim, `data-t="alim"`, "full")}</div></section>
+      <section class="sec"><h2>Aparatos (de arriba hacia abajo)</h2><div class="devs">${state.ent.length ? state.ent.map((d, i) => devCard(d, fase, i, state.ent.length)).join("") : `<div class="empty">Sin aparatos: la alimentación llega directo a barras.</div>`}</div></section>
+      <section class="sec"><h2>Agregar aparato</h2>${palette()}</section>`;
+    return;
+  }
+  const {s, parent} = find(sel);
+  const n = AN.info.get(s.id);
+  const pf = parent ? AN.info.get(parent.id).fase : null;
+  const faseLocked = isBi() || (pf && pf !== "RST");
+  const faseOpts = [["R", "R (monofásico)"], ["S", "S (monofásico)"], ["T", "T (monofásico)"], ["RST", "R-S-T (trifásico)"]];
+  const leaf = !s.hijos.length;
+  el.innerHTML = `
+    <div class="insp-head"><span class="big">${esc(n.tag)}</span><span class="sub">${leaf ? "Circuito" : "Grupo con subcircuitos"}${parent ? ` · dentro de ${esc(AN.info.get(parent.id).tag)}` : ""}</span></div>
+    <div id="insp-calc">${calcHtml()}</div>
+    <section class="sec"><h2>Circuito</h2><div class="grid2">
+      ${field("s-nombre", "Nombre", s.nombre, `data-s="nombre"`, "full")}
+      ${field("s-tag", "Designación", s.tag, `data-s="tag" placeholder="${esc(n.tag)} (auto)"`)}
+      ${isBi() ? selectF("s-fase", "Fases", "L", [["L", "L-N (220 V)"]], "disabled") : selectF("s-fase", "Fases", faseLocked ? pf : s.fase, faseOpts, `data-s="fase" ${faseLocked ? "disabled" : ""}`)}
+      ${leaf ? selectF("s-carga", "Tipo de carga", s.carga, Object.entries(LOAD).map(([k, v]) => [k, v.nombre]), `data-s="carga"`, "full") : ""}
+      ${leaf ? field("s-kw", "Potencia (kW)", s.kw, `data-s="kw" inputmode="decimal" class="num" ${s.carga === "res" ? "disabled" : ""}`) : ""}
+      ${leaf ? field("s-cos", "cos φ", s.cos, `data-s="cos" inputmode="decimal" class="num" ${s.carga === "res" ? "disabled" : ""}`) : ""}
+      ${field("s-cable", "Conductor", s.cable, `data-s="cable" placeholder="2x2,5 mm² + PE"`, "full")}
+    </div>${faseLocked && !isBi() ? `<p class="note">La fase la fija el grupo que lo alimenta.</p>` : ""}${!leaf ? `<p class="note">La carga del grupo es la suma de sus subcircuitos.</p>` : ""}</section>
+    <section class="sec"><h2>Aparatos (de arriba hacia abajo)</h2><div class="devs">${s.devs.length ? s.devs.map((d, i) => devCard(d, n.fase, i, s.devs.length)).join("") : `<div class="empty">Sin aparatos en esta rama.</div>`}</div></section>
+    <section class="sec"><h2>Agregar aparato</h2>${palette()}</section>
+    <section class="sec"><h2>Rama</h2><div class="acts-row">
+      <button type="button" class="btn sm" data-act="sub">+ Subcircuito</button>
+      <button type="button" class="btn sm" data-act="dup">Duplicar</button>
+      <button type="button" class="btn sm" data-act="left">← Mover</button>
+      <button type="button" class="btn sm" data-act="right">Mover →</button>
+      <button type="button" class="btn sm danger" data-act="del" id="b-del">Eliminar</button>
+    </div><p class="note">Un subcircuito convierte esta rama en grupo: sus aparatos (p. ej. un diferencial) quedan aguas arriba de todos los subcircuitos.</p></section>`;
+}
+function calcHtml() {
+  if (sel === "entrada") {
+    return `<div class="calc"><div><small>I demandada</small><b>${nf(AN.Igen, 1)} A</b></div><div><small>Potencia</small><b>${nf(AN.tot.kw, 2)} kW</b></div><div><small>Protección</small><b>${AN.entProt != null ? AN.entProt + " A" : "—"}</b></div></div>` + warnsHtml(AN.entWarn);
+  }
+  const f = find(sel); if (!f) return "";
+  const n = AN.info.get(sel);
+  return `<div class="calc"><div><small>I cálculo</small><b>${nf(n.I, 1)} A</b></div><div><small>Potencia</small><b>${nf(n.kw, 2)} kW</b></div><div><small>Protección</small><b>${n.own != null ? n.own + " A" : "—"}</b></div></div>` + warnsHtml(n.warns);
+}
+function renderInspCalc() { const c = $("insp-calc"); if (c) c.innerHTML = calcHtml(); }
+
+function renderSheet() {
+  const wrapEl = $("sheetwrap");
+  if (fitMode) {
+    const {W} = buildSVG(AN, true);
+    const avail = wrapEl.clientWidth || 800;
+    zoom = Math.max(0.4, Math.min(1.4, avail / W));
+  }
+  const st = wrapEl.scrollTop, sl = wrapEl.scrollLeft;
+  wrapEl.innerHTML = buildSVG(AN).svg;
+  wrapEl.scrollTop = st; wrapEl.scrollLeft = sl;
+  $("z-val").textContent = Math.round(zoom * 100) + "%";
+}
+
+/* ---------- eventos ---------- */
+function devList(devId) {
+  if (state.ent.some(d => d.id === devId)) return state.ent;
+  let r = null;
+  walk(s => { if (s.devs.some(d => d.id === devId)) r = s.devs; });
+  return r;
+}
+function select(id) { sel = id; renderAll(); }
+
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.tagName === "SELECT") return;
+  if (t.dataset.t) { state.tab[t.dataset.t] = t.value; if (t.id === "e-alim") { const o = $("t-alim"); if (o) o.value = t.value; } else if (t.id === "t-alim") { const o = $("e-alim"); if (o) o.value = t.value; } renderLight(); }
+  else if (t.dataset.s) { const f = find(sel); if (!f) return; f.s[t.dataset.s] = (t.dataset.s === "kw" || t.dataset.s === "cos") ? t.value : t.value; renderLight(); }
+  else if (t.dataset.d) { const d = (devList(t.dataset.d) || []).find(x => x.id === t.dataset.d); if (d) { d[t.dataset.k] = t.value; renderLight(); } }
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.id === "f-abrir") return abrir(t);
+  if (t.tagName !== "SELECT") { if (t.dataset.s === "kw" || t.dataset.s === "cos") { const f = find(sel); if (f) { f.s[t.dataset.s] = num(t.value); renderLight(); } } return; }
+  if (t.dataset.s) {
+    const f = find(sel); if (!f) return;
+    f.s[t.dataset.s] = t.value;
+    if (t.dataset.s === "carga") { f.s.cos = LOAD[t.value].cos; if (t.value === "res") f.s.kw = 0; }
+    renderAll();
+  } else if (t.dataset.d) {
+    const d = (devList(t.dataset.d) || []).find(x => x.id === t.dataset.d);
+    if (d) { const k = t.dataset.k; d[k] = (k === "polos" || isNaN(+t.value)) ? t.value : +t.value; renderAll(); }
+  }
+});
+
+let delArmed = null, newArmed = null;
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button, [data-sel]");
+  if (!b) return;
+  if (b.dataset.sel) return select(b.dataset.sel);
+  if (b.dataset.go) return select(b.dataset.go);
+  if (b.dataset.tipo) { state.tab.tipo = b.dataset.tipo; return renderAll(); }
+  if (b.dataset.add) {
+    const list = sel === "entrada" ? state.ent : find(sel)?.s.devs;
+    if (!list) return;
+    const d = dev(b.dataset.add);
+    if (b.dataset.add === "med") d.medidor = isBi() ? "Monofásico" : "Trifásico";
+    list.push(norm(d)); renderAll(); return;
+  }
+  if (b.dataset.mv) {
+    const list = devList(b.dataset.mv); const i = list.findIndex(x => x.id === b.dataset.mv); const j = i + +b.dataset.dir;
+    if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; renderAll(); return;
+  }
+  if (b.dataset.rm) { const list = devList(b.dataset.rm); list.splice(list.findIndex(x => x.id === b.dataset.rm), 1); renderAll(); return; }
+  if (b.dataset.act) return accion(b.dataset.act, b);
+  switch (b.id) {
+    case "b-add-top": {
+      const s = sal({nombre: "Circuito nuevo", fase: isBi() ? "R" : faseLiviana(), devs: [norm(dev("itm", {In: 16}))]});
+      state.sal.push(s); return select(s.id);
+    }
+    case "b-ejemplo": state = ejemplo(state.tab.tipo); sel = "entrada"; renderAll(); return toast("Ejemplo cargado");
+    case "b-nuevo":
+      if (newArmed) { clearTimeout(newArmed); newArmed = null; state = nuevo(state.tab.tipo); sel = "entrada"; b.classList.remove("armed"); b.textContent = "Tablero nuevo"; renderAll(); return toast("Tablero en blanco"); }
+      b.classList.add("armed"); b.textContent = "¿Borrar todo? Confirmar";
+      newArmed = setTimeout(() => { newArmed = null; b.classList.remove("armed"); b.textContent = "Tablero nuevo"; }, 3500);
+      return;
+    case "b-svg": return exportar("svg");
+    case "b-png": return exportar("png");
+    case "b-json": return guardar(`${slug()}.json`, JSON.stringify(state, null, 2));
+    case "b-abrir": return $("f-abrir").click();
+    case "z-in": fitMode = false; zoom = Math.min(3, zoom * 1.2); return renderSheet();
+    case "z-out": fitMode = false; zoom = Math.max(0.25, zoom / 1.2); return renderSheet();
+    case "z-fit": fitMode = true; return renderSheet();
+  }
+});
+
+function faseLiviana() {
+  const t = AN.tot; const m = Math.min(t.R, t.S, t.T);
+  return t.R === m ? "R" : t.S === m ? "S" : "T";
+}
+function clone(s) { return {...structuredClone(s), id: rid(), tag: "", devs: s.devs.map(d => ({...d, id: rid(), tag: ""})), hijos: s.hijos.map(clone)}; }
+
+function accion(a, b) {
+  const f = find(sel); if (!f) return;
+  const {s, list, i, parent} = f;
+  if (a === "sub") {
+    const fase = AN.info.get(s.id).fase;
+    const h = sal({nombre: "Subcircuito", fase: fase === "RST" ? faseLiviana() : fase, devs: [norm(dev("itm", {In: 10}))]});
+    if (!s.hijos.length) { s.kw = 0; }
+    s.hijos.push(h); return select(h.id);
+  }
+  if (a === "dup") { const c = clone(s); list.splice(i + 1, 0, c); return select(c.id); }
+  if (a === "left" && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; return renderAll(); }
+  if (a === "right" && i < list.length - 1) { [list[i + 1], list[i]] = [list[i], list[i + 1]]; return renderAll(); }
+  if (a === "del") {
+    if (delArmed === s.id) { list.splice(i, 1); delArmed = null; sel = parent ? parent.id : "entrada"; renderAll(); return toast("Rama eliminada"); }
+    delArmed = s.id; b.classList.add("armed"); b.textContent = s.hijos.length ? "Confirmar (incluye subcircuitos)" : "Confirmar eliminación";
+    setTimeout(() => { if (delArmed === s.id) { delArmed = null; const x = $("b-del"); if (x) { x.classList.remove("armed"); x.textContent = "Eliminar"; } } }, 3500);
+  }
+}
+
+/* ---------- archivos ---------- */
+const slug = () => (state.tab.nombre || "tablero").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w]+/g, "-").replace(/^-|-$/g, "").toLowerCase() || "tablero";
+async function guardar(filename, data, mime = "application/octet-stream") {
+  if (window.claude && typeof window.claude.use === "function") {
+    let dl = null;
+    try { dl = await window.claude.use("downloads"); } catch {}
+    if (!dl) return toast("La descarga no está disponible en esta vista.");
+    try { await dl.save({filename, data}); toast("Archivo listo: " + filename); }
+    catch (e) { toast(e && e.code === "declined" ? "Descarga cancelada" : "No se pudo descargar (" + (e && e.code || "error") + ")"); }
+    return;
+  }
+  const blob = data instanceof Blob ? data : new Blob([data], {type: mime});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+async function exportar(fmt) {
+  const an = analizar();
+  const {svg, W, H} = buildSVG(an, true);
+  if (fmt === "svg") return guardar(`${slug()}.svg`, `<?xml version="1.0" encoding="UTF-8"?>\n` + svg, "image/svg+xml");
+  const img = new Image();
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  try { await img.decode(); } catch { return toast("No se pudo generar el PNG."); }
+  const k = 2.5, cv = document.createElement("canvas"); cv.width = Math.round(W * k); cv.height = Math.round(H * k);
+  const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  cv.toBlob(b => b ? guardar(`${slug()}.png`, b, "image/png") : toast("No se pudo generar el PNG."), "image/png");
+}
+function abrir(input) {
+  const file = input.files && input.files[0]; if (!file) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const s = JSON.parse(fr.result);
+      if (!s || !s.tab || !Array.isArray(s.sal) || !Array.isArray(s.ent)) throw 0;
+      state = s; sel = "entrada"; renderAll(); toast("Proyecto abierto: " + file.name);
+    } catch { toast("El archivo no es un proyecto de unifilar válido."); }
+    input.value = "";
+  };
+  fr.readAsText(file);
+}
+
+let tt;
+function toast(msg) {
+  let t = document.querySelector(".toast");
+  if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => { t.hidden = true; }, 2600);
+}
+
+window.addEventListener("resize", () => { if (fitMode) renderSheet(); });
+
+/* normalizar aparatos existentes */
+const normAll = () => { state.ent.forEach(norm); walk(s => s.devs.forEach(norm)); };
+normAll();
+sel = "entrada";
+renderAll();
+})();
+</script>
+</body>
+</html>
