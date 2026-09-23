@@ -149,6 +149,8 @@ button,input,select{font:inherit;color:inherit}
 .pal svg{color:currentColor}
 .acts-row{display:flex;flex-wrap:wrap;gap:6px}
 .note{font-size:12px;color:var(--muted);margin:0}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.chk input{width:16px;height:16px;accent-color:var(--accent)}
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:7px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:10}
 input[type=file]{display:none}
@@ -265,6 +267,7 @@ function ejemplo(tipo) {
   if (tipo === "bi") return {
     v: 1,
     tab: {tipo: "bi", nombre: "TP · Vivienda", obra: "Vivienda unifamiliar — Lote 14", alim: "Desde medidor · 2x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 0.8},
+    pil: {...PIL_DEF, on: true, color: "Verde (GN)"},
     ent: [dev("itm", {In: 40, curva: "C", icc: 4.5, tag: "Q0"}), dev("id", {In: 40, sens: 30, tag: "Q1"}), dev("dps", {clase: "II", imax: 20})],
     sal: [
       sal({nombre: "Iluminación planta baja", carga: "iug", kw: 0.9, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
@@ -278,6 +281,7 @@ function ejemplo(tipo) {
   return {
     v: 1,
     tab: {tipo: "tetra", nombre: "TS-1 · Taller", obra: "Nave industrial — Planta 1", alim: "Desde TG · 4x16 mm² + PE 16 mm²", plano: "E-02", dibujo: "", fecha: hoy(), fs: 0.8},
+    pil: {...PIL_DEF, on: true},
     ent: [dev("itm", {In: 63, curva: "C", icc: 10, tag: "Q0"}), dev("dps", {clase: "II", imax: 40}), dev("inst", {instr: "Multimedidor"})],
     sal: [
       sal({nombre: "Circuitos terminales", fase: "RST", carga: "carga", devs: [dev("id", {In: 40, sens: 30, tag: "Q1"})], hijos: [
@@ -298,11 +302,13 @@ function nuevo(tipo) {
   return {
     v: 1,
     tab: {tipo, nombre: "TS · Nuevo", obra: "", alim: bi ? "2x6 mm² + PE" : "4x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 1},
+    pil: {...PIL_DEF},
     ent: [dev("itm", {In: bi ? 32 : 40, tag: "Q0"})],
     sal: [sal({nombre: "Circuito 1", fase: bi ? "R" : "R", devs: [dev("itm", {In: 16})]})],
   };
 }
 
+const PIL_DEF = {on: false, In: 2, clase: "gG", formato: "10x38", color: "Rojo (RD)", pos: "arriba"};
 const KEY = "unifilar.tablero.v1";
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { state = null; }
@@ -500,6 +506,38 @@ function norm(d) {
   return d;
 }
 
+/* Luces piloto de presencia de tensión: una derivación con fusible y lámpara por fase */
+const PILH = 100;
+const pilOn = () => !!(state.pil && state.pil.on);
+function pilIdx() {
+  const i = state.ent.findIndex(d => d.tipo === "itm");
+  if (i < 0) return 0;
+  return state.pil.pos === "abajo" ? i + 1 : i;
+}
+function pilotos(cx, y, cfg) {
+  const fases = isBi() ? ["L"] : ["R", "S", "T"];
+  const y0 = y + 18;
+  const xs = fases.map((_, i) => cx - 44 - (fases.length - 1 - i) * 34);   // R a la izquierda, T junto a la línea
+  const xl = xs[0], xr = xs[xs.length - 1];
+  let s = L(cx, y, cx, y + PILH);
+  s += `<circle cx="${cx}" cy="${y0}" r="2.3" fill="${INK}"/>` + L(cx, y0, xl, y0);
+  fases.forEach((f, i) => {
+    const x = xs[i];
+    if (x !== xl) s += `<circle cx="${x}" cy="${y0}" r="1.8" fill="${INK}"/>`;
+    s += T(x, y0 - 5, f, {size: 9, weight: 700, anchor: "middle", fill: PHC[f]});
+    s += L(x, y0, x, y0 + 8) + R(x - 5, y0 + 8, 10, 26) + L(x, y0 + 8, x, y0 + 34);
+    s += L(x, y0 + 34, x, y0 + 43) + C(x, y0 + 52, 9) + X(x, y0 + 52, 6.3) + L(x, y0 + 61, x, y0 + 70);
+    s += T(x + 11, y0 + 44, "H" + (i + 1), {size: 7.5, weight: 600});
+    s += T(x + 11, y0 + 24, "F" + (i + 1), {size: 7.5, fill: "#4A5561"});
+  });
+  s += L(xl - 12, y0 + 70, xr, y0 + 70) + T(xl - 15, y0 + 73, "N", {size: 9, weight: 700, anchor: "end", fill: PHC.N});
+  const n = fases.length;
+  s += T(cx + 16, y + 30, n > 1 ? `Luces piloto H1–H${n}` : "Luz piloto H1", {size: 9.5, weight: 600});
+  s += T(cx + 16, y + 42, `Fus. ${n > 1 ? n + "x" : ""}${cfg.In} A ${cfg.clase} · ${cfg.formato}`, {size: 8.5, fill: "#4A5561"});
+  s += T(cx + 16, y + 54, cfg.color === "Según fase" ? "Color según fase" : `Color ${cfg.color}`, {size: 8.5, fill: "#4A5561"});
+  return s;
+}
+
 function loadSym(tipo, cx, y, fase, nombre) {
   let s = "";
   switch (tipo) {
@@ -543,7 +581,7 @@ function buildSVG(an, forExport = false) {
 
   const top = M + 44;
   const yEnt0 = top + 56;
-  const yBus = yEnt0 + state.ent.length * DH + 26;
+  const yBus = yEnt0 + state.ent.length * DH + (pilOn() ? PILH : 0) + 26;
   let out = "", hits = "", selRect = "";
   const leaves = [];
   const groups = [];
@@ -609,17 +647,22 @@ function buildSVG(an, forExport = false) {
   ent += T(entCx, top + 2, state.tab.alim || "—", {size: 10, anchor: "middle"});
   ent += `<path d="M${entCx - 6} ${top + 14} L${entCx} ${top + 22} L${entCx + 6} ${top + 14}" fill="none" stroke="${INK}" stroke-width="${SW}"/>`;
   ent += L(entCx, top + 14, entCx, yEnt0) + faseTag(bi ? "L" : "RST", entCx, top + 42);
-    state.ent.forEach((d, i) => {
-    const y = yEnt0 + i * DH;
+  let ye = yEnt0;
+  const pi = pilOn() ? pilIdx() : -1;
+  state.ent.forEach((d, i) => {
+    if (i === pi) { ent += pilotos(entCx, ye, state.pil); ye += PILH; }
     const pol = polosDe(d, bi ? "L" : "RST");
-    ent += sym(d, entCx, y, pol);
+    ent += sym(d, entCx, ye, pol);
     const [a, b] = devLabel(d, pol);
-    ent += T(entCx + 16, y + 30, a, {size: 9.5, weight: 600}) + (b ? T(entCx + 16, y + 42, b, {size: 8.5, fill: "#4A5561"}) : "");
+    ent += T(entCx + 16, ye + 30, a, {size: 9.5, weight: 600}) + (b ? T(entCx + 16, ye + 42, b, {size: 8.5, fill: "#4A5561"}) : "");
+    ye += DH;
   });
-  ent += L(entCx, yEnt0 + state.ent.length * DH, entCx, yBus);
+  if (pi >= state.ent.length) { ent += pilotos(entCx, ye, state.pil); ye += PILH; }
+  ent += L(entCx, ye, entCx, yBus);
   const entY1 = top - 26, entY2 = yBus - 4;
-  hits += `<rect data-sel="entrada" x="${entCx - 70}" y="${entY1}" width="160" height="${entY2 - entY1}" fill="transparent"/>`;
-  if (sel === "entrada") selRect += `<rect x="${entCx - 70}" y="${entY1}" width="160" height="${entY2 - entY1}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
+  const ex0 = entCx - (pilOn() ? (bi ? 80 : 150) : 70), ew = entCx + 90 - ex0;
+  hits += `<rect data-sel="entrada" x="${ex0}" y="${entY1}" width="${ew}" height="${entY2 - entY1}" fill="transparent"/>`;
+  if (sel === "entrada") selRect += `<rect x="${ex0}" y="${entY1}" width="${ew}" height="${entY2 - entY1}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
 
   // --- barras ---
   const cxsTop = groups.filter(g => state.sal.includes(g.s)).map(g => g.cx + dx);
@@ -845,6 +888,7 @@ function renderInsp() {
       <div class="insp-head"><span class="big">Entrada</span><span class="sub">Acometida y protección general</span></div>
       <div id="insp-calc">${calcHtml()}</div>
       <section class="sec"><h2>Alimentación</h2><div class="grid2">${field("e-alim", "Desde / conductor", state.tab.alim, `data-t="alim"`, "full")}</div></section>
+      ${pilHtml()}
       <section class="sec"><h2>Aparatos (de arriba hacia abajo)</h2><div class="devs">${state.ent.length ? state.ent.map((d, i) => devCard(d, fase, i, state.ent.length)).join("") : `<div class="empty">Sin aparatos: la alimentación llega directo a barras.</div>`}</div></section>
       <section class="sec"><h2>Agregar aparato</h2>${palette()}</section>`;
     return;
@@ -876,6 +920,19 @@ function renderInsp() {
       <button type="button" class="btn sm" data-act="right">Mover →</button>
       <button type="button" class="btn sm danger" data-act="del" id="b-del">Eliminar</button>
     </div><p class="note">Un subcircuito convierte esta rama en grupo: sus aparatos (p. ej. un diferencial) quedan aguas arriba de todos los subcircuitos.</p></section>`;
+}
+function pilHtml() {
+  const p = state.pil, n = isBi() ? 1 : 3;
+  const hayItm = state.ent.some(d => d.tipo === "itm");
+  const campos = p.on ? `<div class="grid2" style="margin-top:10px">
+      ${selectF("p-pos", "Conexión", p.pos, [["arriba", "Arriba de la 1ª térmica"], ["abajo", "Debajo de la 1ª térmica"]], `data-p="pos"`, "full")}
+      ${selectF("p-In", "Fusible (A)", p.In, [0.5, 1, 2, 4, 6, 10], `data-p="In"`)}
+      ${selectF("p-clase", "Clase", p.clase, ["gG", "aM"], `data-p="clase"`)}
+      ${selectF("p-formato", "Formato", p.formato, ["5x20", "6x32", "8x31", "10x38"], `data-p="formato"`)}
+      ${selectF("p-color", "Color", p.color, ["Rojo (RD)", "Verde (GN)", "Ámbar (YE)", "Blanco (WH)", "Azul (BU)", "Según fase"], `data-p="color"`)}
+    </div>${hayItm ? "" : `<p class="note">No hay térmica en la entrada: las luces se dibujan al comienzo.</p>`}` : "";
+  return `<section class="sec"><h2>Luces piloto</h2>
+    <label class="chk"><input type="checkbox" id="p-on" data-p="on" ${p.on ? "checked" : ""}> ${n > 1 ? "3 luces piloto (R, S, T) con fusible por fase" : "Luz piloto (L-N) con fusible"}</label>${campos}</section>`;
 }
 function calcHtml() {
   if (sel === "entrada") {
@@ -919,6 +976,11 @@ document.addEventListener("input", (e) => {
 document.addEventListener("change", (e) => {
   const t = e.target;
   if (t.id === "f-abrir") return abrir(t);
+  if (t.dataset.p) {
+    const k = t.dataset.p;
+    state.pil[k] = t.type === "checkbox" ? t.checked : (k === "In" ? +t.value : t.value);
+    return renderAll();
+  }
   if (t.tagName !== "SELECT") { if (t.dataset.s === "kw" || t.dataset.s === "cos") { const f = find(sel); if (f) { f.s[t.dataset.s] = num(t.value); renderLight(); } } return; }
   if (t.dataset.s) {
     const f = find(sel); if (!f) return;
@@ -956,9 +1018,9 @@ document.addEventListener("click", (e) => {
       const s = sal({nombre: "Circuito nuevo", fase: isBi() ? "R" : faseLiviana(), devs: [norm(dev("itm", {In: 16}))]});
       state.sal.push(s); return select(s.id);
     }
-    case "b-ejemplo": state = ejemplo(state.tab.tipo); sel = "entrada"; renderAll(); return toast("Ejemplo cargado");
+    case "b-ejemplo": state = ejemplo(state.tab.tipo); normAll(); sel = "entrada"; renderAll(); return toast("Ejemplo cargado");
     case "b-nuevo":
-      if (newArmed) { clearTimeout(newArmed); newArmed = null; state = nuevo(state.tab.tipo); sel = "entrada"; b.classList.remove("armed"); b.textContent = "Tablero nuevo"; renderAll(); return toast("Tablero en blanco"); }
+      if (newArmed) { clearTimeout(newArmed); newArmed = null; state = nuevo(state.tab.tipo); normAll(); sel = "entrada"; b.classList.remove("armed"); b.textContent = "Tablero nuevo"; renderAll(); return toast("Tablero en blanco"); }
       b.classList.add("armed"); b.textContent = "¿Borrar todo? Confirmar";
       newArmed = setTimeout(() => { newArmed = null; b.classList.remove("armed"); b.textContent = "Tablero nuevo"; }, 3500);
       return;
@@ -1030,7 +1092,7 @@ function abrir(input) {
     try {
       const s = JSON.parse(fr.result);
       if (!s || !s.tab || !Array.isArray(s.sal) || !Array.isArray(s.ent)) throw 0;
-      state = s; sel = "entrada"; renderAll(); toast("Proyecto abierto: " + file.name);
+      state = s; normAll(); sel = "entrada"; renderAll(); toast("Proyecto abierto: " + file.name);
     } catch { toast("El archivo no es un proyecto de unifilar válido."); }
     input.value = "";
   };
@@ -1047,7 +1109,7 @@ function toast(msg) {
 window.addEventListener("resize", () => { if (fitMode) renderSheet(); });
 
 /* normalizar aparatos existentes */
-const normAll = () => { state.ent.forEach(norm); walk(s => s.devs.forEach(norm)); };
+const normAll = () => { state.pil = {...PIL_DEF, ...(state.pil || {})}; state.ent.forEach(norm); walk(s => s.devs.forEach(norm)); };
 normAll();
 sel = "entrada";
 renderAll();
