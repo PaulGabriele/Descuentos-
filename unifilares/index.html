@@ -44,6 +44,7 @@ button,input,select{font:inherit;color:inherit}
 .top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
 .brand h1{font:700 19px/1 var(--cond);letter-spacing:.01em;margin:0}
+#ver{color:var(--accent)!important}
 .brand span{font:500 11px/1 var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--panel-2)}
 .seg button{border:0;background:none;padding:7px 12px;cursor:pointer;font-weight:500;display:flex;gap:8px;align-items:center}
@@ -160,7 +161,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="top">
-  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span></div>
+  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span><span id="ver" title="Versión del archivo">v5 · luces piloto</span></div>
   <div class="seg" role="group" aria-label="Tipo de tablero">
     <button type="button" id="tipo-bi" data-tipo="bi">Bipolar <small>1×220 V</small></button>
     <button type="button" id="tipo-tetra" data-tipo="tetra">Tetrapolar <small>3×380/220 V</small></button>
