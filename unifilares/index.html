@@ -150,6 +150,10 @@ button,input,select{font:inherit;color:inherit}
 .pal svg{color:currentColor}
 .acts-row{display:flex;flex-wrap:wrap;gap:6px}
 .note{font-size:12px;color:var(--muted);margin:0}
+.upsb{margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:6px}
+.upsb .bar{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.upsb .bar b{display:block;height:100%}
+.ups-node > .node .tag{color:var(--accent)}
 .chk{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
 .chk input{width:16px;height:16px;accent-color:var(--accent)}
 
@@ -161,7 +165,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="top">
-  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span><span id="ver" title="Versión del archivo">v5 · luces piloto</span></div>
+  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span><span id="ver" title="Versión del archivo">v6 · UPS</span></div>
   <div class="seg" role="group" aria-label="Tipo de tablero">
     <button type="button" id="tipo-bi" data-tipo="bi">Bipolar <small>1×220 V</small></button>
     <button type="button" id="tipo-tetra" data-tipo="tetra">Tetrapolar <small>3×380/220 V</small></button>
@@ -184,8 +188,9 @@ input[type=file]{display:none}
       <div class="grid2" id="tabform"></div>
     </section>
     <div id="pil-left"></div>
+    <div id="ups-left"></div>
     <section class="sec">
-      <h2><span class="grow">Estructura</span><button type="button" class="btn sm" id="b-add-top">+ Circuito</button></h2>
+      <h2><span class="grow">Estructura</span><button type="button" class="btn sm" id="b-add-top">+ Circuito</button><button type="button" class="btn sm" data-addups id="b-add-ups" hidden>+ Circuito UPS</button></h2>
       <ul class="tree" id="tree"></ul>
     </section>
     <section class="sec">
@@ -268,34 +273,46 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 function ejemplo(tipo) {
   if (tipo === "bi") return {
     v: 1,
-    tab: {tipo: "bi", nombre: "TP · Vivienda", obra: "Vivienda unifamiliar — Lote 14", alim: "Desde medidor · 2x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 0.8},
+    tab: {tipo: "bi", nombre: "TS-UPS · Oficina", obra: "Oficinas administrativas — PB", alim: "Desde medidor · 2x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 0.8},
     pil: {...PIL_DEF, on: true, color: "Verde (GN)"},
     ent: [dev("itm", {In: 40, curva: "C", icc: 4.5, tag: "Q0"}), dev("id", {In: 40, sens: 30, tag: "Q1"}), dev("dps", {clase: "II", imax: 20})],
     sal: [
-      sal({nombre: "Iluminación planta baja", carga: "iug", kw: 0.9, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
-      sal({nombre: "Iluminación planta alta", carga: "iug", kw: 0.7, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
-      sal({nombre: "Tomas cocina y lavadero", carga: "tug", kw: 2.2, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16, icc: 4.5})]}),
-      sal({nombre: "Tomas dormitorios", carga: "tug", kw: 1.8, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16, icc: 4.5})]}),
-      sal({nombre: "Aire acondicionado living", carga: "aa", kw: 2.3, cos: 0.85, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20, icc: 4.5})]}),
-      sal({nombre: "Reserva", carga: "res", kw: 0, cable: "—", devs: [dev("itm", {In: 16, icc: 4.5})]}),
+      sal({nombre: "Iluminación oficinas", carga: "iug", kw: 0.8, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
+      sal({nombre: "Tomas generales", carga: "tug", kw: 2, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16, icc: 4.5})]}),
+      sal({nombre: "Aire acondicionado", carga: "aa", kw: 2.3, cos: 0.85, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20, icc: 4.5})]}),
     ],
+    ups: {...UPS_DEF(true), on: true, kva: 3, fp: 0.9, rend: 90, autonomia: "20 min", tipo: "1/1",
+      entDevs: [dev("itm", {In: 16, icc: 4.5, tag: "Q-UE"})],
+      salDevs: [dev("itm", {In: 16, icc: 4.5, tag: "Q-US"}), dev("id", {In: 25, sens: 30, clase: "A"})],
+      bp: {modo: "conmutador", tipo: "itm", In: 16, tag: "S1"},
+      sal: [
+        sal({nombre: "Tomas UPS puestos de trabajo", carga: "tue", kw: 1, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
+        sal({nombre: "Servidor y rack de comunicaciones", carga: "carga", kw: 0.8, cos: 0.95, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 10, icc: 4.5})]}),
+        sal({nombre: "Alarma y CCTV", carga: "carga", kw: 0.3, cos: 0.95, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 6, icc: 4.5})]}),
+      ]},
   };
   return {
     v: 1,
-    tab: {tipo: "tetra", nombre: "TS-1 · Taller", obra: "Nave industrial — Planta 1", alim: "Desde TG · 4x16 mm² + PE 16 mm²", plano: "E-02", dibujo: "", fecha: hoy(), fs: 0.8},
+    tab: {tipo: "tetra", nombre: "TS-UPS · Sala técnica", obra: "Data center — Planta 1", alim: "Desde TG · 4x25 mm² + PE 16 mm²", plano: "E-02", dibujo: "", fecha: hoy(), fs: 0.8},
     pil: {...PIL_DEF, on: true},
     ent: [dev("itm", {In: 63, curva: "C", icc: 10, tag: "Q0"}), dev("dps", {clase: "II", imax: 40}), dev("inst", {instr: "Multimedidor"})],
     sal: [
-      sal({nombre: "Circuitos terminales", fase: "RST", carga: "carga", devs: [dev("id", {In: 40, sens: 30, tag: "Q1"})], hijos: [
-        sal({nombre: "Iluminación nave", fase: "R", carga: "iug", kw: 1.2, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10})]}),
-        sal({nombre: "Tomas oficina", fase: "S", carga: "tug", kw: 2.2, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16})]}),
-        sal({nombre: "Tomas taller", fase: "T", carga: "tug", kw: 3, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20})]}),
-      ]}),
-      sal({nombre: "Compresor", fase: "RST", carga: "motor", kw: 4, cos: 0.85, cable: "4x2,5 mm² + PE", devs: [dev("gm", {rango: "6,3–10 A", polos: "3"}), dev("cont", {In: 12, polos: "3"})]}),
-      sal({nombre: "Aire acondicionado oficina", fase: "R", carga: "aa", kw: 2.6, cos: 0.85, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20}), dev("id", {In: 25, sens: 30})]}),
-      sal({nombre: "Subtablero depósito", fase: "RST", carga: "st", kw: 8, cable: "4x6 mm² + PE", devs: [dev("itm", {In: 32})]}),
-      sal({nombre: "Reserva", fase: "RST", carga: "res", kw: 0, cable: "—", devs: [dev("itm", {In: 20})]}),
+      sal({nombre: "Iluminación sala", fase: "R", carga: "iug", kw: 0.6, cable: "2x1,5 mm² + PE", devs: [dev("itm", {In: 10}), dev("id", {In: 25, sens: 30})]}),
+      sal({nombre: "Tomas generales", fase: "S", carga: "tug", kw: 1.2, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16}), dev("id", {In: 25, sens: 30})]}),
+      sal({nombre: "Tomas de servicio", fase: "T", carga: "tug", kw: 1, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16}), dev("id", {In: 25, sens: 30})]}),
+      sal({nombre: "Aire acondicionado de precisión", fase: "RST", carga: "aa", kw: 7.5, cos: 0.85, cable: "4x6 mm² + PE", devs: [dev("itm", {In: 25})]}),
     ],
+    ups: {...UPS_DEF(false), on: true, kva: 20, fp: 0.9, rend: 95, autonomia: "15 min", tipo: "3/3",
+      entDevs: [dev("itm", {In: 40, icc: 10, tag: "Q-UE"})],
+      salDevs: [dev("itm", {In: 40, icc: 10, tag: "Q-US"}), dev("id", {In: 40, sens: 30, clase: "A-SI"})],
+      bp: {modo: "enclavado", tipo: "itm", In: 40, tag: "Q-BP"},
+      sal: [
+        sal({nombre: "Rack servidores 1", fase: "R", carga: "carga", kw: 3.5, cos: 0.95, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20})]}),
+        sal({nombre: "Rack servidores 2", fase: "S", carga: "carga", kw: 3.5, cos: 0.95, cable: "2x4 mm² + PE", devs: [dev("itm", {In: 20})]}),
+        sal({nombre: "Rack comunicaciones", fase: "T", carga: "carga", kw: 2, cos: 0.95, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16})]}),
+        sal({nombre: "Tomas UPS puestos de trabajo", fase: "T", carga: "tue", kw: 1.5, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16})]}),
+        sal({nombre: "Reserva", fase: "R", carga: "res", kw: 0, cable: "—", devs: [dev("itm", {In: 16})]}),
+      ]},
   };
 }
 
@@ -305,12 +322,20 @@ function nuevo(tipo) {
     v: 1,
     tab: {tipo, nombre: "TS · Nuevo", obra: "", alim: bi ? "2x6 mm² + PE" : "4x10 mm² + PE", plano: "E-01", dibujo: "", fecha: hoy(), fs: 1},
     pil: {...PIL_DEF},
+    ups: UPS_DEF(bi),
     ent: [dev("itm", {In: bi ? 32 : 40, tag: "Q0"})],
     sal: [sal({nombre: "Circuito 1", fase: bi ? "R" : "R", devs: [dev("itm", {In: 16})]})],
   };
 }
 
 const PIL_DEF = {on: false, In: 2, clase: "gG", formato: "10x38", color: "Rojo (RD)", pos: "arriba"};
+/* UPS: se alimenta desde la barra normal y su salida vuelve al tablero como segunda entrada (barra UPS) */
+const UPS_DEF = (bi) => ({on: false, nombre: "UPS-1", kva: bi ? 3 : 10, fp: 0.9, rend: bi ? 90 : 94, autonomia: "15 min", tipo: bi ? "1/1" : "3/3", faseIn: "R",
+  entDevs: [dev("itm", {In: bi ? 16 : 25, tag: "Q-UE"})], salDevs: [dev("itm", {In: bi ? 16 : 20, tag: "Q-US"})],
+  bp: {modo: "enclavado", tipo: "itm", In: bi ? 16 : 20, tag: "Q-BP"},
+  sal: [sal({nombre: "Carga crítica 1", fase: "R", carga: "tue", kw: 1, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16})]})]});
+const UPS_TIPOS = [["3/3", "Trifásica / trifásica"], ["3/1", "Trifásica / monofásica"], ["1/1", "Monofásica / monofásica"]];
+const BP_MODOS = [["enclavado", "Bypass con enclavamiento"], ["conmutador", "Conmutador 1-0-2"], ["no", "Sin bypass"]];
 const KEY = "unifilar.tablero.v1";
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { state = null; }
@@ -324,7 +349,12 @@ function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } c
    Utilidades de modelo
    ============================================================ */
 const isBi = () => state.tab.tipo === "bi";
-function find(id, list = state.sal, parent = null) {
+const upsOn = () => !!(state.ups && state.ups.on);
+const upsOutTri = () => !isBi() && state.ups.tipo === "3/3";
+const upsFaseIn = () => isBi() ? "L" : (state.ups.tipo === "1/1" ? state.ups.faseIn || "R" : "RST");
+const upsFaseOut = () => upsOutTri() ? "RST" : "L";
+function find(id, list, parent = null) {
+  if (list === undefined) return find(id, state.sal) || (upsOn() ? find(id, state.ups.sal) : null);
   for (let i = 0; i < list.length; i++) {
     const s = list[i];
     if (s.id === id) return {s, list, i, parent};
@@ -333,18 +363,21 @@ function find(id, list = state.sal, parent = null) {
   }
   return null;
 }
-function walk(fn, list = state.sal, parent = null, depth = 0) {
+/* Recorre todos los circuitos: barra normal y, si hay UPS, barra UPS */
+function walk(fn, list, parent = null, depth = 0) {
+  if (list === undefined) { walk(fn, state.sal); if (upsOn()) walk(fn, state.ups.sal); return; }
   for (const s of list) { fn(s, parent, depth); walk(fn, s.hijos, s, depth + 1); }
 }
-function effFase(s, parentFase) {
-  if (isBi()) return "L";
+function effFase(s, parentFase, bi) {
+  if (bi) return "L";
   if (parentFase && parentFase !== "RST") return parentFase;
   return s.fase || "R";
 }
-function polosAuto(fase) { return isBi() ? 2 : (fase === "RST" ? 4 : 2); }
+function polosAuto(fase) { return fase === "RST" ? 4 : 2; }
 function polosDe(d, fase) { return d.polos && d.polos !== "auto" ? +d.polos : polosAuto(fase); }
 
 const nf = (n, d = 2) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString("es-AR", {minimumFractionDigits: d, maximumFractionDigits: d});
+const nx = (n) => num(n).toLocaleString("es-AR", {maximumFractionDigits: 2});
 const num = (v) => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : 0; };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -357,18 +390,18 @@ function corriente(kw, cos, fase) {
 /* Análisis: fases efectivas, designaciones, corrientes y advertencias */
 function analizar() {
   const info = new Map();
-  let nc = 0, ng = 0;
-  const entProt = protIn(state.ent);
-  const entId = state.ent.some(d => d.tipo === "id");
+  const ctr = {};
+  const ups = upsOn() ? state.ups : null;
 
-  function rec(list, parentFase, ancProt, ancId) {
+  function rec(list, parentFase, ancProt, ancId, cx) {
     for (const s of list) {
-      const fase = effFase(s, parentFase);
+      const fase = effFase(s, parentFase, cx.bi);
       const leaf = s.hijos.length === 0;
-      const tag = s.tag || (leaf ? "C" + (++nc) : "G" + (++ng));
+      const pre = leaf ? cx.pl : cx.pg;
+      const tag = s.tag || pre + (ctr[pre] = (ctr[pre] || 0) + 1);
       const own = protIn(s.devs);
       const hasId = ancId || s.devs.some(d => d.tipo === "id");
-      const nodo = {fase, tag, leaf, own, I: 0, kw: 0, ph: {R: 0, S: 0, T: 0, L: 0}, warns: []};
+      const nodo = {fase, tag, leaf, own, I: 0, kw: 0, ph: {R: 0, S: 0, T: 0, L: 0}, warns: [], ups: cx.ups};
       info.set(s.id, nodo);
       if (leaf) {
         nodo.kw = s.carga === "res" ? 0 : num(s.kw);
@@ -376,7 +409,7 @@ function analizar() {
         if (fase === "RST") { nodo.ph.R = nodo.ph.S = nodo.ph.T = nodo.I; }
         else nodo.ph[fase] = nodo.I;
       } else {
-        rec(s.hijos, fase, own ?? ancProt, hasId);
+        rec(s.hijos, fase, own ?? ancProt, hasId, cx);
         for (const h of s.hijos) {
           const hi = info.get(h.id);
           nodo.kw += hi.kw;
@@ -386,35 +419,69 @@ function analizar() {
       }
       // advertencias
       if (own != null && nodo.I > own + 1e-9) nodo.warns.push(["bad", `Corriente de cálculo ${nf(nodo.I, 1)} A supera la protección de ${own} A.`]);
-      if (leaf && own == null && ancProt == null && entProt == null && s.carga !== "res") nodo.warns.push(["bad", "El circuito no tiene protección contra sobrecorriente (ITM, fusible o guardamotor)."]);
-      if (leaf && own == null && s.carga !== "res" && (ancProt != null || entProt != null)) nodo.warns.push(["w", "Sin protección propia: queda protegido sólo por el aparato aguas arriba."]);
-      const up = ancProt ?? entProt;
+      if (leaf && own == null && ancProt == null && cx.entProt == null && s.carga !== "res") nodo.warns.push(["bad", "El circuito no tiene protección contra sobrecorriente (ITM, fusible o guardamotor)."]);
+      if (leaf && own == null && s.carga !== "res" && (ancProt != null || cx.entProt != null)) nodo.warns.push(["w", "Sin protección propia: queda protegido sólo por el aparato aguas arriba."]);
+      const up = ancProt ?? cx.entProt;
       if (own != null && up != null && own >= up) nodo.warns.push(["w", `Selectividad: ${own} A igual o mayor que los ${up} A aguas arriba.`]);
-      if (leaf && fase !== "RST" && !hasId && !entId && s.carga !== "res" && s.carga !== "st") nodo.warns.push(["w", "Circuito terminal sin diferencial de 30 mA (AEA 90364 lo exige en circuitos de tomas e iluminación)."]);
+      if (leaf && fase !== "RST" && !hasId && !cx.entId && s.carga !== "res" && s.carga !== "st") nodo.warns.push(["w", "Circuito terminal sin diferencial de 30 mA (AEA 90364 lo exige en circuitos de tomas e iluminación)."]);
     }
   }
-  rec(state.sal, null, null, false);
+  const entProt = protIn(state.ent);
+  rec(state.sal, null, null, false, {bi: isBi(), pl: "C", pg: "G", entProt, entId: state.ent.some(d => d.tipo === "id"), ups: false});
+  const upsSalProt = ups ? protIn(ups.salDevs) : null;
+  if (ups) rec(ups.sal, null, null, false, {bi: !upsOutTri(), pl: "U", pg: "UG", entProt: upsSalProt, entId: ups.salDevs.some(d => d.tipo === "id"), ups: true});
 
-  const tot = {R: 0, S: 0, T: 0, L: 0, kwR: 0, kwS: 0, kwT: 0, kw: 0};
-  for (const s of state.sal) {
-    const n = info.get(s.id);
-    for (const k of ["R","S","T","L"]) tot[k] += n.ph[k];
-    tot.kw += n.kw;
+  const sumar = (list) => {
+    const t = {R: 0, S: 0, T: 0, L: 0, kwR: 0, kwS: 0, kwT: 0, kw: 0};
+    for (const s of list) { const n = info.get(s.id); for (const k of ["R","S","T","L"]) t[k] += n.ph[k]; t.kw += n.kw; }
+    // kW por fase (cargas tri se reparten en tercios)
+    walk((s) => {
+      const n = info.get(s.id);
+      if (!n.leaf) return;
+      if (n.fase === "RST") { t.kwR += n.kw / 3; t.kwS += n.kw / 3; t.kwT += n.kw / 3; }
+      else if (n.fase !== "L") t["kw" + n.fase] += n.kw;
+    }, list);
+    return t;
+  };
+  const tot = sumar(state.sal);
+
+  // UPS: la carga crítica / rendimiento se suma a la barra normal como una salida más
+  let upsTot = null, upsInfo = null;
+  if (ups) {
+    upsTot = sumar(ups.sal);
+    const fIn = upsFaseIn(), fOut = upsFaseOut();
+    const Pn = num(ups.kva) * (num(ups.fp) || 1);
+    const eta = Math.min(1, Math.max(0.5, num(ups.rend) / 100 || 0.94));
+    const kwIn = upsTot.kw / eta;
+    const cIn = fIn === "RST" ? "RST" : "L";
+    const Iin = corriente(kwIn, 0.99, cIn), IinNom = corriente(Pn / eta, 0.99, cIn);
+    const IoutNom = num(ups.kva) * 1000 / (fOut === "RST" ? Math.sqrt(3) * 380 : 220);
+    const Iout = fOut === "RST" ? Math.max(upsTot.R, upsTot.S, upsTot.T) : upsTot.L;
+    const carga = Pn > 0 ? upsTot.kw / Pn * 100 : 0;
+    if (fIn === "RST") { for (const f of ["R", "S", "T"]) { tot[f] += Iin; tot["kw" + f] += kwIn / 3; } }
+    else if (fIn === "L") tot.L += Iin;
+    else { tot[fIn] += Iin; tot["kw" + fIn] += kwIn; }
+    tot.kw += kwIn;
+    const w = [];
+    if (Pn <= 0) w.push(["bad", "Indicá la potencia de la UPS (kVA)."]);
+    else if (carga > 100) w.push(["bad", `La carga crítica (${nf(upsTot.kw, 2)} kW) supera la potencia de la UPS (${nf(Pn, 2)} kW).`]);
+    else if (carga > 80) w.push(["w", `La UPS queda cargada al ${nf(carga, 0)} %; conviene no superar el 80 %.`]);
+    const pe = protIn(ups.entDevs);
+    if (pe == null) w.push(["w", "La alimentación de la UPS no tiene protección (ITM o fusible)."]);
+    else if (pe < IinNom) w.push(["w", `La protección de entrada (${pe} A) es menor que la corriente de entrada de la UPS a plena carga (${nf(IinNom, 1)} A).`]);
+    if (upsSalProt == null) w.push(["w", "La salida de la UPS no tiene protección (ITM o fusible)."]);
+    else if (Iout > upsSalProt) w.push(["bad", `La corriente de salida (${nf(Iout, 1)} A) supera la protección de salida de ${upsSalProt} A.`]);
+    if (fOut === "RST") { const d = deseqT(upsTot); if (d > 20) w.push(["w", `Desequilibrio de ${nf(d, 0)} % entre fases a la salida de la UPS.`]); }
+    upsInfo = {fIn, fOut, Pn, eta, kwIn, Iin, IinNom, IoutNom, Iout, carga, warns: w, entProt: pe, salProt: upsSalProt};
   }
-  // kW por fase (cargas tri se reparten en tercios)
-  walk((s, p) => {
-    const n = info.get(s.id);
-    if (!n.leaf) return;
-    if (n.fase === "RST") { tot.kwR += n.kw / 3; tot.kwS += n.kw / 3; tot.kwT += n.kw / 3; }
-    else if (n.fase !== "L") tot["kw" + n.fase] += n.kw;
-  });
+
   const entWarn = [];
   const fs = Math.min(1, Math.max(0.1, num(state.tab.fs) || 1));
   const Iinst = isBi() ? tot.L : Math.max(tot.R, tot.S, tot.T);
   const Igen = Iinst * fs;
   if (entProt != null && Igen > entProt) entWarn.push(["bad", `La corriente demandada ${nf(Igen, 1)} A (fs ${nf(fs, 2)}) supera la protección general de ${entProt} A.`]);
   if (entProt == null) entWarn.push(["w", "La entrada no tiene interruptor general ni fusibles."]);
-  return {info, tot, Igen, Iinst, fs, entWarn, entProt};
+  return {info, tot, Igen, Iinst, fs, entWarn, entProt, upsTot, upsInfo};
 }
 function protIn(devs) {
   let m = null;
@@ -573,36 +640,44 @@ function wrap(txt, max) {
   return out;
 }
 
-const COLW = 172, M = 28;
+const COLW = 172, M = 28, UPS_MINW = 380;
 function buildSVG(an, forExport = false) {
   INK = "#15191E"; PAPER = "#FFFFFF";
   const bi = isBi();
+  const ups = upsOn() ? state.ups : null;
+  const ui = an.upsInfo;
   const width = new Map();
   const meas = (s) => { const w = s.hijos.length ? Math.max(COLW, s.hijos.reduce((a, h) => a + meas(h), 0)) : COLW; width.set(s.id, w); return w; };
-  const totalW = state.sal.reduce((a, s) => a + meas(s), 0) || COLW;
+  const redCircW = state.sal.reduce((a, s) => a + meas(s), 0);
+  const redW = Math.max(COLW, redCircW + (ups ? COLW : 0));     // con UPS se suma la columna de alimentación
+  const GAP = ups ? 30 : 0;
+  const upsW = ups ? Math.max(UPS_MINW, ups.sal.reduce((a, s) => a + meas(s), 0)) : 0;
+  const totalW = redW + GAP + upsW;
 
   const top = M + 44;
   const yEnt0 = top + 56;
   const yBus = yEnt0 + state.ent.length * DH + (pilOn() ? PILH : 0) + 26;
-  let out = "", hits = "", selRect = "";
+  let hits = "", selRect = "";
   const leaves = [];
   const groups = [];
+  const selBox = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
+  const hit = (id, x, y, w, h) => `<rect data-sel="${id}" x="${x}" y="${y}" width="${w}" height="${Math.max(10, h)}" fill="transparent"/>`;
+  const devRow = (d, cx, y, fase) => {
+    const pol = polosDe(d, fase);
+    const [a, b] = devLabel(d, pol);
+    return sym(d, cx, y, pol) + T(cx + 16, y + 30, a, {size: 9.5, weight: 600}) + (b ? T(cx + 16, y + 42, b, {size: 8.5, fill: "#4A5561"}) : "");
+  };
+  const dot = (x, y) => `<circle cx="${x}" cy="${y}" r="2.3" fill="${INK}"/>`;
 
   // --- salidas (primera pasada, calcula posiciones) ---
-  function place(s, x0, yTop, pFase) {
+  function place(s, x0, yTop) {
     const w = width.get(s.id), cx = Math.round(x0 + w / 2);
     const n = an.info.get(s.id);
     const g = {s, x0, w, cx, yTop, parts: ""};
     let y = yTop, p = "";
     p += L(cx, y, cx, y + 30) + faseTag(n.fase, cx, y + 16);
     y += 30;
-    for (const d of s.devs) {
-      const pol = polosDe(d, n.fase);
-      p += sym(d, cx, y, pol);
-      const [a, b] = devLabel(d, pol);
-      p += T(cx + 16, y + 30, a, {size: 9.5, weight: 600}) + (b ? T(cx + 16, y + 42, b, {size: 8.5, fill: "#4A5561"}) : "");
-      y += DH;
-    }
+    for (const d of s.devs) { p += devRow(d, cx, y, n.fase); y += DH; }
     g.parts = p;
     groups.push(g);
     if (s.hijos.length) {
@@ -610,7 +685,7 @@ function buildSVG(an, forExport = false) {
       let xc = x0 + (w - s.hijos.reduce((a, h) => a + width.get(h.id), 0)) / 2;
       const cxs = [];
       g.parts += L(cx, y, cx, yb);
-      for (const h of s.hijos) { cxs.push(Math.round(xc + width.get(h.id) / 2)); place(h, xc, yb, n.fase); xc += width.get(h.id); }
+      for (const h of s.hijos) { cxs.push(Math.round(xc + width.get(h.id) / 2)); place(h, xc, yb); xc += width.get(h.id); }
       if (cxs.length > 1) g.parts += `<line x1="${Math.min(cxs[0], cx) - 10}" y1="${yb}" x2="${Math.max(cxs[cxs.length - 1], cx) + 10}" y2="${yb}" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
       g.yEnd = yb;
     } else {
@@ -619,9 +694,88 @@ function buildSVG(an, forExport = false) {
     }
   }
   let x = M;
-  for (const s of state.sal) { place(s, x, yBus, null); x += width.get(s.id); }
+  for (const s of state.sal) { place(s, x, yBus); x += width.get(s.id); }
 
-  const yLoad = Math.max(yBus + 60, ...leaves.map(l => l.y)) + 12;
+  // --- UPS: alimentación desde la barra normal, equipo, bypass y barra UPS ---
+  let U = null;
+  if (ups) {
+    const fIn = ui.fIn, fOut = ui.fOut;
+    const xf = Math.round(M + redCircW + COLW / 2);           // columna "Alimentación UPS" en la barra normal
+    const xS = M + redW + GAP, xb = xS + 44, xu = xb + 130;   // sección UPS: bypass (xb) y línea de la UPS (xu)
+    const bpm = ups.bp.modo;
+    let p = "", y = yBus;
+    p += L(xf, y, xf, y + 30) + faseTag(fIn, xf, y + 16);
+    y += 30;
+    for (const d of ups.entDevs) { p += devRow(d, xf, y, fIn); y += DH; }
+    const yF = y + 22;
+    p += L(xf, y, xf, yF) + L(xf, yF, xu, yF);
+    p += T(xf + 10, yF - 6, "ALIMENTACIÓN UPS", {size: 8, weight: 600, fill: "#4A5561", ls: "0.08em"});
+    // equipo UPS (rectificador / inversor) con banco de baterías
+    const yU0 = yF + 22, UB = 46;
+    p += L(xu, yF, xu, yU0);
+    p += R(xu - 28, yU0, 56, UB) + L(xu - 28, yU0 + UB, xu + 28, yU0);
+    p += T(xu - 13, yU0 + 18, "~", {size: 14, anchor: "middle", weight: 600}) + T(xu + 13, yU0 + 40, "~", {size: 14, anchor: "middle", weight: 600});
+    const yb0 = yU0 + UB / 2;
+    p += L(xu - 28, yb0, xu - 42, yb0);
+    p += L(xu - 42, yb0 - 11, xu - 42, yb0 + 11) + L(xu - 48, yb0 - 5, xu - 48, yb0 + 5, `stroke-width="3"`);
+    p += L(xu - 54, yb0 - 11, xu - 54, yb0 + 11) + L(xu - 60, yb0 - 5, xu - 60, yb0 + 5, `stroke-width="3"`);
+    p += T(xu - 51, yb0 + 24, "Bat.", {size: 7.5, anchor: "middle", fill: "#4A5561"});
+    const lx = xu + 38;
+    p += T(lx, yU0 + 9, `${ups.nombre || "UPS"} · ${nx(ups.kva)} kVA`, {size: 9.5, weight: 600});
+    p += T(lx, yU0 + 21, `${nx(ui.Pn)} kW · fp ${nx(ups.fp)} · η ${nx(ups.rend)} %`, {size: 8.5, fill: "#4A5561"});
+    p += T(lx, yU0 + 33, `Entrada ${fIn === "RST" ? "3F+N" : "1F+N"} · Salida ${fOut === "RST" ? "3F+N" : "1F+N"}`, {size: 8.5, fill: "#4A5561"});
+    p += T(lx, yU0 + 45, `Autonomía ${ups.autonomia || "—"}`, {size: 8.5, fill: "#4A5561"});
+    // retorno de la UPS: segunda entrada del tablero
+    y = yU0 + UB;
+    p += L(xu, y, xu, y + 24) + faseTag(fOut, xu, y + 16);
+    y += 24;
+    let lastRow = null;   // fila del aparato de salida con el que enclava el bypass (1ª térmica o seccionador)
+    for (const d of ups.salDevs) {
+      p += devRow(d, xu, y, fOut);
+      if (lastRow == null && (d.tipo === "itm" || d.tipo === "secc")) lastRow = y;
+      y += DH;
+    }
+    const hayEnclave = lastRow != null;
+    if (bpm === "enclavado" && lastRow == null) {
+      if (ups.salDevs.length) lastRow = y - DH;
+      else { p += L(xu, y, xu, y + DH); lastRow = y; y += DH; }
+    }
+    let yBusU;
+    if (bpm === "enclavado") {
+      const bpDev = {tipo: ups.bp.tipo === "secc" ? "secc" : "itm", In: ups.bp.In, curva: "C", icc: 6, tag: ups.bp.tag || "", polos: "auto"};
+      const pol = polosDe(bpDev, fOut);
+      const yJ = y + 16;
+      p += dot(xb, yF) + L(xb, yF, xb, lastRow) + sym(bpDev, xb, lastRow, pol) + L(xb, lastRow + DH, xb, yJ);
+      p += L(xb, yJ, xu, yJ) + L(xu, y, xu, yJ) + dot(xu, yJ);
+      p += T(xb + 16, lastRow + 30, devLabel(bpDev, pol)[0], {size: 9.5, weight: 600}) + T(xb + 16, lastRow + 42, "Bypass mant.", {size: 8.5, fill: "#4A5561"});
+      if (hayEnclave) {
+        p += P(`M${xb - 6} ${lastRow + 33} V${lastRow + 56} H${xu - 6} V${lastRow + 33}`, DASH);
+        p += T((xb + xu) / 2 - 4, lastRow + 66, "enclavamiento mecánico", {size: 7, anchor: "middle", fill: "#4A5561", family: COND});
+      }
+      yBusU = yJ + 30;
+      p += L(xu, yJ, xu, yBusU);
+    } else if (bpm === "conmutador") {
+      const yC = y + 18, yP = yC + 32;
+      p += dot(xb, yF) + L(xb, yF, xb, yC) + L(xb, yC, xu - 24, yC) + L(xu, y, xu, yC);
+      p += `<circle cx="${xu - 24}" cy="${yC}" r="2.4" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}"/><circle cx="${xu}" cy="${yC}" r="2.4" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}"/>`;
+      p += L(xu, yP, xu - 12, yC + 5) + dot(xu, yP);
+      p += T(xu - 24, yC - 7, "2", {size: 8, anchor: "middle", weight: 600}) + T(xu, yC - 7, "1", {size: 8, anchor: "middle", weight: 600}) + T(xu - 18, yP + 2, "0", {size: 8, anchor: "middle", weight: 600});
+      const pol = polosAuto(fOut);
+      p += T(xu + 16, yC + 12, `${ups.bp.tag ? ups.bp.tag + " " : ""}Conmutador 1-0-2`, {size: 9.5, weight: 600});
+      p += T(xu + 16, yC + 24, `${pol}x${ups.bp.In} A · 1 UPS · 2 Bypass`, {size: 8.5, fill: "#4A5561"});
+      p += T(xb + 6, yC - 6, "Bypass", {size: 8, fill: "#4A5561"});
+      yBusU = yP + 26;
+      p += L(xu, yP, xu, yBusU);
+    } else {
+      yBusU = y + 26;
+      p += L(xu, y, xu, yBusU);
+    }
+    U = {xf, xS, xb, xu, yF, yBusU, parts: p, fOut};
+    let xx = xS;
+    for (const s of ups.sal) { place(s, xx, yBusU); xx += width.get(s.id); }
+  }
+
+  const yLoad = Math.max(yBus + 60, U ? U.yBusU + 60 : 0, ...leaves.map(l => l.y)) + 12;
   const yLab = yLoad + 58;
   const yTable = yLab + 72;
 
@@ -631,7 +785,7 @@ function buildSVG(an, forExport = false) {
   const cols = [["Circ.", 44], ["Descripción", 190], ["Fase", 44], ["Protección", 150], ["Cable", 130], ["P kW", 56], ["I A", 56]];
   const tabW = cols.reduce((a, c) => a + c[1], 0);
   const RH = 17;
-  const tabH = (rows.length + 2) * RH + 22;
+  const tabH = (rows.length + 2) * RH + 22 + (ups ? 12 : 0);
   const rotW = 300, rotH = 128;
 
   const drawW = totalW + 2 * M;
@@ -643,7 +797,7 @@ function buildSVG(an, forExport = false) {
   const dx = Math.round((W - drawW) / 2);
 
   // --- entrada ---
-  const entCx = Math.round(dx + M + totalW / 2);
+  const entCx = Math.round(dx + M + redW / 2);
   let ent = "";
   ent += T(entCx, top - 12, "ALIMENTACIÓN", {size: 9, anchor: "middle", weight: 600, ls: "0.12em", fill: "#4A5561"});
   ent += T(entCx, top + 2, state.tab.alim || "—", {size: 10, anchor: "middle"});
@@ -663,15 +817,28 @@ function buildSVG(an, forExport = false) {
   ent += L(entCx, ye, entCx, yBus);
   const entY1 = top - 26, entY2 = yBus - 4;
   const ex0 = entCx - (pilOn() ? (bi ? 80 : 150) : 70), ew = entCx + 90 - ex0;
-  hits += `<rect data-sel="entrada" x="${ex0}" y="${entY1}" width="${ew}" height="${entY2 - entY1}" fill="transparent"/>`;
-  if (sel === "entrada") selRect += `<rect x="${ex0}" y="${entY1}" width="${ew}" height="${entY2 - entY1}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
+  hits += hit("entrada", ex0, entY1, ew, entY2 - entY1);
+  if (sel === "entrada") selRect += selBox(ex0, entY1, ew, entY2 - entY1);
 
   // --- barras ---
   const cxsTop = groups.filter(g => state.sal.includes(g.s)).map(g => g.cx + dx);
+  if (U) cxsTop.push(U.xf + dx);
   const bx1 = Math.min(entCx, ...cxsTop) - 22, bx2 = Math.max(entCx, ...cxsTop) + 22;
   let bus = `<line x1="${bx1}" y1="${yBus}" x2="${bx2}" y2="${yBus}" stroke="${INK}" stroke-width="5" stroke-linecap="square"/>`;
-  bus += T(bx1, yBus - 9, bi ? "Barras L-N · 220 V · 50 Hz" : "Barras R-S-T-N · 3x380/220 V · 50 Hz", {size: 9, weight: 600, fill: "#4A5561"});
+  bus += T(bx1, yBus - 9, (U ? "Barra normal · " : "Barras ") + (bi ? "L-N · 220 V · 50 Hz" : "R-S-T-N · 3x380/220 V · 50 Hz"), {size: 9, weight: 600, fill: "#4A5561"});
   bus += T(bx1, yBus + 16, "PE", {size: 9, weight: 600, fill: "#3E8E41"});
+  if (U) {
+    const ucx = groups.filter(g => ups.sal.includes(g.s)).map(g => g.cx + dx);
+    const ux1 = Math.min(U.xb + dx, ...ucx) - 22, ux2 = Math.max(U.xu + dx + 40, ...ucx) + 22;
+    bus += `<line x1="${ux1}" y1="${U.yBusU}" x2="${ux2}" y2="${U.yBusU}" stroke="${INK}" stroke-width="5" stroke-linecap="square"/>`;
+    bus += T(U.xu + dx + 10, U.yBusU - 9, `Barra UPS · ${U.fOut === "RST" ? "R-S-T-N · 3x380/220 V" : "L-N · 220 V"}`, {size: 9, weight: 600, fill: "#4A5561"});
+    bus += T(ux1, U.yBusU + 16, "PE", {size: 9, weight: 600, fill: "#3E8E41"});
+    bus += `<g transform="translate(${dx} 0)">${U.parts}</g>`;
+    const fx = U.xf + dx - COLW / 2 + 3, fy = yBus + 4, fh = U.yF + 8 - fy;
+    const ax = U.xb + dx - 40, ay = U.yF - 16, aw = U.xu - U.xb + 40 + 210, ah = U.yBusU - 4 - ay;
+    hits += hit("ups", fx, fy, COLW - 6, fh) + hit("ups", ax, ay, aw, ah);
+    if (sel === "ups") selRect += selBox(fx, fy, COLW - 6, fh) + selBox(ax, ay, aw, ah);
+  }
 
   // --- ramas ---
   let ramas = "";
@@ -679,11 +846,8 @@ function buildSVG(an, forExport = false) {
     const isSel = sel === g.s.id;
     const x0 = g.x0 + dx, rx = x0 + 3, ry = g.yTop + 4;
     const yBottom = g.s.hijos.length ? g.yEnd - 4 : yLab + 40;
-    hits += `<rect data-sel="${g.s.id}" x="${rx}" y="${ry}" width="${g.w - 6}" height="${Math.max(10, yBottom - ry)}" fill="transparent"/>`;
-    if (isSel) {
-      const yb = yLab + 40;
-      selRect += `<rect x="${rx}" y="${ry}" width="${g.w - 6}" height="${yb - ry}" rx="6" fill="#1D5AA6" fill-opacity="0.07" stroke="#1D5AA6" stroke-opacity="0.5" stroke-dasharray="4 3"/>`;
-    }
+    hits += hit(g.s.id, rx, ry, g.w - 6, yBottom - ry);
+    if (isSel) selRect += selBox(rx, ry, g.w - 6, yLab + 40 - ry);
     ramas += `<g transform="translate(${dx} 0)">${g.parts}</g>`;
   }
   for (const l of leaves) {
@@ -735,14 +899,15 @@ function buildSVG(an, forExport = false) {
   });
   const yt = ty + RH * (rows.length + 1);
   tab += `<rect x="${tx}" y="${yt}" width="${tabW}" height="${RH}" fill="#EEF1F4" stroke="${INK}" stroke-width="0.8"/>`;
-  tab += T(tx + 5, yt + 12, "TOTAL INSTALADO", {size: 8.5, weight: 700});
+  tab += T(tx + 5, yt + 12, ups ? "TOTAL EN RED (UPS ÷ η)" : "TOTAL INSTALADO", {size: 8.5, weight: 700});
   tab += T(heads[5].x + heads[5].w - 5, yt + 12, nf(an.tot.kw, 2), {size: 8.5, weight: 700, anchor: "end"});
   tab += T(heads[6].x + heads[6].w - 5, yt + 12, nf(an.Iinst, 1), {size: 8.5, weight: 700, anchor: "end"});
   const dem = ` · Demanda (fs ${nf(an.fs, 2)}): ${nf(an.tot.kw * an.fs, 2)} kW · ${nf(an.Igen, 1)} A`;
   const balTxt = bi ? `Corriente instalada en L: ${nf(an.tot.L, 1)} A${dem}` :
     `R: ${nf(an.tot.R, 1)} A · S: ${nf(an.tot.S, 1)} A · T: ${nf(an.tot.T, 1)} A · Deseq. ${nf(deseq(an), 0)} %${dem}`;
   tab += T(tx, yt + RH + 14, balTxt, {size: 8.5, fill: "#4A5561"});
-  tab += T(tx, yt + RH + 26, "I calculada con U = 220 V (monofásica) o √3·380 V (trifásica) y el cos φ de cada carga. Suma aritmética de corrientes.", {size: 7.5, fill: "#6A7580", family: COND});
+  if (ups) tab += T(tx, yt + RH + 26, `UPS ${ups.nombre}: carga crítica ${nf(an.upsTot.kw, 2)} de ${nf(ui.Pn, 2)} kW (${nf(ui.carga, 0)} %) · consumo en red ${nf(ui.kwIn, 2)} kW · I entrada ${nf(ui.Iin, 1)} A`, {size: 8.5, fill: "#4A5561"});
+  tab += T(tx, yt + RH + (ups ? 38 : 26), "I calculada con U = 220 V (monofásica) o √3·380 V (trifásica) y el cos φ de cada carga. Suma aritmética de corrientes.", {size: 7.5, fill: "#6A7580", family: COND});
 
   // --- rótulo ---
   const rx = W - M - rotW, ry = sideBySide ? ty : ty + tabH + 20;
@@ -753,7 +918,7 @@ function buildSVG(an, forExport = false) {
   rot += T(rx + 10, ry + 33, (tb.nombre || "—").slice(0, 30), {size: 15, weight: 700, family: COND});
   const cells = [
     ["OBRA", tb.obra || "—", 0, 0, 2],
-    ["SISTEMA", bi ? "Monofásico 220 V · 50 Hz" : "Trifásico 3x380/220 V · 50 Hz", 0, 1, 2],
+    ["SISTEMA", (bi ? "Monofásico 220 V · 50 Hz" : "Trifásico 3x380/220 V · 50 Hz") + (ups ? ` · UPS ${nx(ups.kva)} kVA` : ""), 0, 1, 2],
     ["DIBUJÓ", tb.dibujo || "—", 0, 2, 1], ["FECHA", fmtFecha(tb.fecha), 1, 2, 1],
     ["ESCALA", "S/E", 0, 3, 1], ["PLANO", tb.plano || "—", 1, 3, 1],
   ];
@@ -771,8 +936,9 @@ function buildSVG(an, forExport = false) {
     + (forExport ? "" : `<g>${hits}</g>`) + `</svg>`;
   return {svg, W, H};
 }
-function deseq(an) {
-  const v = [an.tot.R, an.tot.S, an.tot.T]; const avg = (v[0] + v[1] + v[2]) / 3;
+function deseq(an) { return deseqT(an.tot); }
+function deseqT(t) {
+  const v = [t.R, t.S, t.T]; const avg = (v[0] + v[1] + v[2]) / 3;
   return avg > 0 ? (Math.max(...v) - Math.min(...v)) / avg * 100 : 0;
 }
 function fmtFecha(f) { if (!f) return "—"; const [y, m, d] = f.split("-"); return d && m && y ? `${d}/${m}/${y}` : f; }
@@ -792,7 +958,7 @@ function icon(tipo, w = 34, h = 42) {
 const $ = (id) => document.getElementById(id);
 let AN;
 
-function renderAll() { AN = analizar(); renderTop(); renderTab(); $("pil-left").innerHTML = pilHtml("pl"); renderTree(); renderBal(); renderInsp(); renderSheet(); persist(); }
+function renderAll() { AN = analizar(); renderTop(); renderTab(); $("pil-left").innerHTML = pilHtml("pl"); $("ups-left").innerHTML = upsLeftHtml(); renderTree(); renderBal(); renderInsp(); renderSheet(); persist(); }
 function renderLight() { AN = analizar(); renderTree(); renderBal(); renderInspCalc(); renderSheet(); persist(); }
 
 function renderTop() {
@@ -831,10 +997,28 @@ function renderTree() {
     return `<li><button type="button" class="node" data-go="${s.id}" aria-current="${sel === s.id}"><span class="tag">${esc(n.tag)}</span><span class="nm">${esc(s.nombre || LOAD[s.carga].nombre)}</span>${bad}${phChip(n.fase)}</button>${s.hijos.length ? `<ul>${s.hijos.map(li).join("")}</ul>` : ""}</li>`;
   };
   const entBad = AN.entWarn.length ? `<span class="dot" style="${AN.entWarn.some(w => w[0] === "bad") ? "" : "background:var(--warn)"}"></span>` : "";
-  $("tree").innerHTML = `<li><button type="button" class="node" data-go="entrada" aria-current="${sel === "entrada"}"><span class="tag">E</span><span class="nm">Entrada y protección general</span>${entBad}${phChip(isBi() ? "L" : "RST")}</button></li>` + state.sal.map(li).join("");
+  let html = `<li><button type="button" class="node" data-go="entrada" aria-current="${sel === "entrada"}"><span class="tag">E</span><span class="nm">Entrada y protección general</span>${entBad}${phChip(isBi() ? "L" : "RST")}</button></li>` + state.sal.map(li).join("");
+  if (upsOn()) {
+    const w = AN.upsInfo.warns;
+    const ub = w.length ? `<span class="dot" style="${w.some(x => x[0] === "bad") ? "" : "background:var(--warn)"}"></span>` : "";
+    html += `<li class="ups-node"><button type="button" class="node" data-go="ups" aria-current="${sel === "ups"}"><span class="tag">UPS</span><span class="nm">${esc(state.ups.nombre)} · ${esc(nx(state.ups.kva))} kVA</span>${ub}${phChip(AN.upsInfo.fOut)}</button><ul>${state.ups.sal.map(li).join("")}</ul></li>`;
+  }
+  $("tree").innerHTML = html;
+  $("b-add-ups").hidden = !upsOn();
 }
 
-function renderBal() {
+function renderBal() { renderBal0(); $("bal").insertAdjacentHTML("beforeend", upsBalHtml()); }
+function upsBalHtml() {
+  if (!upsOn() || !AN.upsInfo) return "";
+  const u = AN.upsInfo, t = AN.upsTot;
+  const cls = u.carga > 100 ? "bad" : u.carga > 80 ? "warn" : "ok";
+  const col = u.carga > 100 ? "var(--bad)" : u.carga > 80 ? "var(--warn)" : "var(--ok)";
+  const s = u.fOut === "RST" ? `R ${nf(t.R, 1)} · S ${nf(t.S, 1)} · T ${nf(t.T, 1)} A` : `L ${nf(t.L, 1)} A`;
+  return `<div class="upsb"><div class="foot"><b>${esc(state.ups.nombre)} · carga de la UPS</b><span class="pill ${cls}">${nf(u.carga, 0)} %</span></div>
+    <div class="bar"><b style="width:${Math.min(100, u.carga)}%;background:${col}"></b></div>
+    <div class="foot"><span class="num">${nf(t.kw, 2)} de ${nf(u.Pn, 2)} kW</span><span class="num">${s}</span></div></div>`;
+}
+function renderBal0() {
   const t = AN.tot;
   if (isBi()) {
     $("bal-title").textContent = "Carga del tablero";
@@ -874,8 +1058,8 @@ function devCard(d, fase, idx, len, scope) {
     <button type="button" class="ic del" data-rm="${d.id}" aria-label="Quitar">✕</button></span></header>
     <div class="grid2">${f}</div></div>`;
 }
-function palette() {
-  return `<div class="pal">${DEV_ORDER.map(t => `<button type="button" data-add="${t}" title="${DEV[t].nombre}">${icon(t)}<span>${DEV[t].nombre}</span></button>`).join("")}</div>`;
+function palette(lista = "") {
+  return `<div class="pal">${DEV_ORDER.map(t => `<button type="button" data-add="${t}"${lista ? ` data-list="${lista}"` : ""} title="${DEV[t].nombre}">${icon(t)}<span>${DEV[t].nombre}</span></button>`).join("")}</div>`;
 }
 function warnsHtml(ws) {
   return ws.length ? `<div class="warns">${ws.map(([k, m]) => `<div class="${k === "w" ? "w" : ""}">${esc(m)}</div>`).join("")}</div>` : "";
@@ -883,7 +1067,8 @@ function warnsHtml(ws) {
 
 function renderInsp() {
   const el = $("insp");
-  if (!sel || (sel !== "entrada" && !find(sel))) sel = "entrada";
+  if (!sel || (sel !== "entrada" && sel !== "ups" && !find(sel)) || (sel === "ups" && !upsOn())) sel = "entrada";
+  if (sel === "ups") return renderInspUps(el);
   if (sel === "entrada") {
     const fase = isBi() ? "L" : "RST";
     el.innerHTML = `
@@ -898,21 +1083,22 @@ function renderInsp() {
   const {s, parent} = find(sel);
   const n = AN.info.get(s.id);
   const pf = parent ? AN.info.get(parent.id).fase : null;
-  const faseLocked = isBi() || (pf && pf !== "RST");
+  const barBi = n.ups ? !upsOutTri() : isBi();
+  const faseLocked = barBi || (pf && pf !== "RST");
   const faseOpts = [["R", "R (monofásico)"], ["S", "S (monofásico)"], ["T", "T (monofásico)"], ["RST", "R-S-T (trifásico)"]];
   const leaf = !s.hijos.length;
   el.innerHTML = `
-    <div class="insp-head"><span class="big">${esc(n.tag)}</span><span class="sub">${leaf ? "Circuito" : "Grupo con subcircuitos"}${parent ? ` · dentro de ${esc(AN.info.get(parent.id).tag)}` : ""}</span></div>
+    <div class="insp-head"><span class="big">${esc(n.tag)}</span><span class="sub">${leaf ? "Circuito" : "Grupo con subcircuitos"}${n.ups ? " · barra UPS" : ""}${parent ? ` · dentro de ${esc(AN.info.get(parent.id).tag)}` : ""}</span></div>
     <div id="insp-calc">${calcHtml()}</div>
     <section class="sec"><h2>Circuito</h2><div class="grid2">
       ${field("s-nombre", "Nombre", s.nombre, `data-s="nombre"`, "full")}
       ${field("s-tag", "Designación", s.tag, `data-s="tag" placeholder="${esc(n.tag)} (auto)"`)}
-      ${isBi() ? selectF("s-fase", "Fases", "L", [["L", "L-N (220 V)"]], "disabled") : selectF("s-fase", "Fases", faseLocked ? pf : s.fase, faseOpts, `data-s="fase" ${faseLocked ? "disabled" : ""}`)}
+      ${barBi ? selectF("s-fase", "Fases", "L", [["L", "L-N (220 V)"]], "disabled") : selectF("s-fase", "Fases", faseLocked ? pf : s.fase, faseOpts, `data-s="fase" ${faseLocked ? "disabled" : ""}`)}
       ${leaf ? selectF("s-carga", "Tipo de carga", s.carga, Object.entries(LOAD).map(([k, v]) => [k, v.nombre]), `data-s="carga"`, "full") : ""}
       ${leaf ? field("s-kw", "Potencia (kW)", s.kw, `data-s="kw" inputmode="decimal" class="num" ${s.carga === "res" ? "disabled" : ""}`) : ""}
       ${leaf ? field("s-cos", "cos φ", s.cos, `data-s="cos" inputmode="decimal" class="num" ${s.carga === "res" ? "disabled" : ""}`) : ""}
       ${field("s-cable", "Conductor", s.cable, `data-s="cable" placeholder="2x2,5 mm² + PE"`, "full")}
-    </div>${faseLocked && !isBi() ? `<p class="note">La fase la fija el grupo que lo alimenta.</p>` : ""}${!leaf ? `<p class="note">La carga del grupo es la suma de sus subcircuitos.</p>` : ""}</section>
+    </div>${faseLocked && !barBi ? `<p class="note">La fase la fija el grupo que lo alimenta.</p>` : ""}${!leaf ? `<p class="note">La carga del grupo es la suma de sus subcircuitos.</p>` : ""}</section>
     <section class="sec"><h2>Aparatos (de arriba hacia abajo)</h2><div class="devs">${s.devs.length ? s.devs.map((d, i) => devCard(d, n.fase, i, s.devs.length)).join("") : `<div class="empty">Sin aparatos en esta rama.</div>`}</div></section>
     <section class="sec"><h2>Agregar aparato</h2>${palette()}</section>
     <section class="sec"><h2>Rama</h2><div class="acts-row">
@@ -922,6 +1108,50 @@ function renderInsp() {
       <button type="button" class="btn sm" data-act="right">Mover →</button>
       <button type="button" class="btn sm danger" data-act="del" id="b-del">Eliminar</button>
     </div><p class="note">Un subcircuito convierte esta rama en grupo: sus aparatos (p. ej. un diferencial) quedan aguas arriba de todos los subcircuitos.</p></section>`;
+}
+function upsTipoSel(px) {
+  return isBi() ? selectF(`${px}-tipo`, "Entrada / salida", "1/1", [["1/1", "Monofásica / monofásica"]], "disabled", "full")
+    : selectF(`${px}-tipo`, "Entrada / salida", state.ups.tipo, UPS_TIPOS, `data-u="tipo"`, "full");
+}
+function upsLeftHtml() {
+  const u = state.ups;
+  const campos = u.on ? `<div class="grid2" style="margin-top:10px">
+      ${upsTipoSel("ul")}
+      ${field("ul-kva", "Potencia (kVA)", u.kva, `data-u="kva" inputmode="decimal" class="num"`)}
+      ${selectF("ul-bp", "Bypass", u.bp.modo, BP_MODOS, `data-ub="modo"`)}
+    </div><div class="acts-row" style="margin-top:8px"><button type="button" class="btn sm" data-go="ups">Editar UPS y sus aparatos →</button></div>` : "";
+  return `<section class="sec"><h2>UPS</h2>
+    <label class="chk"><input type="checkbox" id="ul-on" data-u="on" ${u.on ? "checked" : ""}> Tablero con UPS (entrada de red + retorno de la UPS)</label>${campos}</section>`;
+}
+function renderInspUps(el) {
+  const u = state.ups, ui = AN.upsInfo;
+  const lista = (devs, fase) => devs.length ? devs.map((d, i) => devCard(d, fase, i, devs.length)).join("") : `<div class="empty">Sin aparatos.</div>`;
+  const notaBp = {enclavado: "El bypass se toma después de la protección de entrada y llega a la barra UPS. El enclavamiento mecánico impide cerrar a la vez el bypass y la salida de la UPS.",
+    conmutador: "Conmutador de 3 posiciones: 1 = UPS, 0 = abierto, 2 = bypass (red).", no: "Sin bypass: para hacer mantenimiento a la UPS hay que dejar sin tensión la barra UPS."}[u.bp.modo];
+  el.innerHTML = `
+    <div class="insp-head"><span class="big">UPS</span><span class="sub">Alimentación, equipo, bypass y barra UPS</span></div>
+    <div id="insp-calc">${calcHtml()}</div>
+    <section class="sec"><h2>Equipo</h2><div class="grid2">
+      ${field("u-nombre", "Designación", u.nombre, `data-u="nombre"`)}
+      ${field("u-kva", "Potencia (kVA)", u.kva, `data-u="kva" inputmode="decimal" class="num"`)}
+      ${upsTipoSel("u")}
+      ${!isBi() && u.tipo === "1/1" ? selectF("u-faseIn", "Fase de entrada", u.faseIn, ["R", "S", "T"], `data-u="faseIn"`) : ""}
+      ${field("u-fp", "Factor de potencia", u.fp, `data-u="fp" inputmode="decimal" class="num"`)}
+      ${field("u-rend", "Rendimiento (%)", u.rend, `data-u="rend" inputmode="decimal" class="num"`)}
+      ${field("u-aut", "Autonomía", u.autonomia, `data-u="autonomia" placeholder="15 min"`)}
+    </div></section>
+    <section class="sec"><h2>Alimentación de la UPS · desde barra normal</h2><div class="devs">${lista(u.entDevs, ui.fIn)}</div></section>
+    <section class="sec"><h2>Agregar a la alimentación</h2>${palette("upsEnt")}</section>
+    <section class="sec"><h2>Salida de la UPS · antes de la barra UPS</h2><div class="devs">${lista(u.salDevs, ui.fOut)}</div></section>
+    <section class="sec"><h2>Agregar a la salida</h2>${palette("upsSal")}</section>
+    <section class="sec"><h2>Bypass de mantenimiento</h2><div class="grid2">
+      ${selectF("u-bpmodo", "Tipo", u.bp.modo, BP_MODOS, `data-ub="modo"`, "full")}
+      ${u.bp.modo === "enclavado" ? selectF("u-bptipo", "Aparato", u.bp.tipo, [["itm", "Termomagnético"], ["secc", "Seccionador"]], `data-ub="tipo"`) : ""}
+      ${u.bp.modo !== "no" ? selectF("u-bpIn", "In (A)", u.bp.In, IN_ITM, `data-ub="In"`) : ""}
+      ${u.bp.modo !== "no" ? field("u-bptag", "Referencia", u.bp.tag, `data-ub="tag"`) : ""}
+    </div><p class="note">${notaBp}</p></section>
+    <section class="sec"><h2>Barra UPS</h2><div class="acts-row"><button type="button" class="btn sm" data-addups>+ Circuito en barra UPS</button></div>
+    <p class="note">Los circuitos de la barra UPS se editan tocándolos en el esquema o en la lista.</p></section>`;
 }
 function pilHtml(px = "p") {
   const p = state.pil, n = isBi() ? 1 : 3;
@@ -937,6 +1167,11 @@ function pilHtml(px = "p") {
     <label class="chk"><input type="checkbox" id="${px}-on" data-p="on" ${p.on ? "checked" : ""}> ${n > 1 ? "3 luces piloto (R, S, T) con fusible por fase" : "Luz piloto (L-N) con fusible"}</label>${campos}</section>`;
 }
 function calcHtml() {
+  if (sel === "ups") {
+    const u = AN.upsInfo; if (!u) return "";
+    return `<div class="calc"><div><small>Carga UPS</small><b>${nf(u.carga, 0)} %</b></div><div><small>I entrada</small><b>${nf(u.IinNom, 1)} A</b></div><div><small>I salida</small><b>${nf(u.IoutNom, 1)} A</b></div></div>
+      <p class="note">${nf(AN.upsTot.kw, 2)} de ${nf(u.Pn, 2)} kW. Corrientes nominales de la UPS a plena carga.</p>` + warnsHtml(u.warns);
+  }
   if (sel === "entrada") {
     return `<div class="calc"><div><small>I demandada</small><b>${nf(AN.Igen, 1)} A</b></div><div><small>Potencia</small><b>${nf(AN.tot.kw, 2)} kW</b></div><div><small>Protección</small><b>${AN.entProt != null ? AN.entProt + " A" : "—"}</b></div></div>` + warnsHtml(AN.entWarn);
   }
@@ -962,6 +1197,7 @@ function renderSheet() {
 /* ---------- eventos ---------- */
 function devList(devId) {
   if (state.ent.some(d => d.id === devId)) return state.ent;
+  if (state.ups) for (const l of [state.ups.entDevs, state.ups.salDevs]) if (l.some(d => d.id === devId)) return l;
   let r = null;
   walk(s => { if (s.devs.some(d => d.id === devId)) r = s.devs; });
   return r;
@@ -974,10 +1210,27 @@ document.addEventListener("input", (e) => {
   if (t.dataset.t) { state.tab[t.dataset.t] = t.value; if (t.id === "e-alim") { const o = $("t-alim"); if (o) o.value = t.value; } else if (t.id === "t-alim") { const o = $("e-alim"); if (o) o.value = t.value; } renderLight(); }
   else if (t.dataset.s) { const f = find(sel); if (!f) return; f.s[t.dataset.s] = (t.dataset.s === "kw" || t.dataset.s === "cos") ? t.value : t.value; renderLight(); }
   else if (t.dataset.d) { const d = (devList(t.dataset.d) || []).find(x => x.id === t.dataset.d); if (d) { d[t.dataset.k] = t.value; renderLight(); } }
+  else if (t.dataset.u && t.type !== "checkbox") {
+    const k = t.dataset.u; state.ups[k] = t.value;
+    document.querySelectorAll(`[data-u="${k}"]`).forEach(o => { if (o !== t) o.value = t.value; });
+    renderLight();
+  }
+  else if (t.dataset.ub) { state.ups.bp[t.dataset.ub] = t.value; renderLight(); }
 });
 document.addEventListener("change", (e) => {
   const t = e.target;
   if (t.id === "f-abrir") return abrir(t);
+  if (t.dataset.u) {
+    if (t.type === "checkbox") state.ups.on = t.checked;
+    else if (t.tagName === "SELECT") state.ups[t.dataset.u] = t.value;
+    else return;
+    return renderAll();
+  }
+  if (t.dataset.ub) {
+    if (t.tagName !== "SELECT") return;
+    state.ups.bp[t.dataset.ub] = t.dataset.ub === "In" ? +t.value : t.value;
+    return renderAll();
+  }
   if (t.dataset.p) {
     const k = t.dataset.p;
     state.pil[k] = t.type === "checkbox" ? t.checked : (k === "In" ? +t.value : t.value);
@@ -1003,7 +1256,8 @@ document.addEventListener("click", (e) => {
   if (b.dataset.go) return select(b.dataset.go);
   if (b.dataset.tipo) { state.tab.tipo = b.dataset.tipo; return renderAll(); }
   if (b.dataset.add) {
-    const list = sel === "entrada" ? state.ent : find(sel)?.s.devs;
+    const lk = b.dataset.list;
+    const list = lk === "upsEnt" ? state.ups.entDevs : lk === "upsSal" ? state.ups.salDevs : sel === "entrada" ? state.ent : find(sel)?.s.devs;
     if (!list) return;
     const d = dev(b.dataset.add);
     if (b.dataset.add === "med") d.medidor = isBi() ? "Monofásico" : "Trifásico";
@@ -1015,6 +1269,10 @@ document.addEventListener("click", (e) => {
   }
   if (b.dataset.rm) { const list = devList(b.dataset.rm); list.splice(list.findIndex(x => x.id === b.dataset.rm), 1); renderAll(); return; }
   if (b.dataset.act) return accion(b.dataset.act, b);
+  if ("addups" in b.dataset) {
+    const s = sal({nombre: "Circuito UPS", fase: upsOutTri() ? faseLiviana(AN.upsTot) : "R", carga: "tue", devs: [norm(dev("itm", {In: 16}))]});
+    state.ups.sal.push(s); return select(s.id);
+  }
   switch (b.id) {
     case "b-add-top": {
       const s = sal({nombre: "Circuito nuevo", fase: isBi() ? "R" : faseLiviana(), devs: [norm(dev("itm", {In: 16}))]});
@@ -1036,8 +1294,8 @@ document.addEventListener("click", (e) => {
   }
 });
 
-function faseLiviana() {
-  const t = AN.tot; const m = Math.min(t.R, t.S, t.T);
+function faseLiviana(t = AN.tot) {
+  const m = Math.min(t.R, t.S, t.T);
   return t.R === m ? "R" : t.S === m ? "S" : "T";
 }
 function clone(s) { return {...structuredClone(s), id: rid(), tag: "", devs: s.devs.map(d => ({...d, id: rid(), tag: ""})), hijos: s.hijos.map(clone)}; }
@@ -1047,7 +1305,7 @@ function accion(a, b) {
   const {s, list, i, parent} = f;
   if (a === "sub") {
     const fase = AN.info.get(s.id).fase;
-    const h = sal({nombre: "Subcircuito", fase: fase === "RST" ? faseLiviana() : fase, devs: [norm(dev("itm", {In: 10}))]});
+    const h = sal({nombre: "Subcircuito", fase: fase === "RST" ? faseLiviana(AN.info.get(s.id).ups ? AN.upsTot : AN.tot) : fase, devs: [norm(dev("itm", {In: 10}))]});
     if (!s.hijos.length) { s.kw = 0; }
     s.hijos.push(h); return select(h.id);
   }
@@ -1055,7 +1313,7 @@ function accion(a, b) {
   if (a === "left" && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; return renderAll(); }
   if (a === "right" && i < list.length - 1) { [list[i + 1], list[i]] = [list[i], list[i + 1]]; return renderAll(); }
   if (a === "del") {
-    if (delArmed === s.id) { list.splice(i, 1); delArmed = null; sel = parent ? parent.id : "entrada"; renderAll(); return toast("Rama eliminada"); }
+    if (delArmed === s.id) { list.splice(i, 1); delArmed = null; sel = parent ? parent.id : (upsOn() && list === state.ups.sal ? "ups" : "entrada"); renderAll(); return toast("Rama eliminada"); }
     delArmed = s.id; b.classList.add("armed"); b.textContent = s.hijos.length ? "Confirmar (incluye subcircuitos)" : "Confirmar eliminación";
     setTimeout(() => { if (delArmed === s.id) { delArmed = null; const x = $("b-del"); if (x) { x.classList.remove("armed"); x.textContent = "Eliminar"; } } }, 3500);
   }
@@ -1111,7 +1369,14 @@ function toast(msg) {
 window.addEventListener("resize", () => { if (fitMode) renderSheet(); });
 
 /* normalizar aparatos existentes */
-const normAll = () => { state.pil = {...PIL_DEF, ...(state.pil || {})}; state.ent.forEach(norm); walk(s => s.devs.forEach(norm)); };
+const normAll = () => {
+  state.pil = {...PIL_DEF, ...(state.pil || {})};
+  const ud = UPS_DEF(isBi());
+  state.ups = {...ud, ...(state.ups || {})};
+  state.ups.bp = {...ud.bp, ...(state.ups.bp || {})};
+  state.ent.forEach(norm); state.ups.entDevs.forEach(norm); state.ups.salDevs.forEach(norm);
+  walk(s => s.devs.forEach(norm), state.sal); walk(s => s.devs.forEach(norm), state.ups.sal);
+};
 normAll();
 sel = "entrada";
 renderAll();
