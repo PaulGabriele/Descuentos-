@@ -182,6 +182,7 @@ input[type=file]{display:none}
       <h2>Datos del tablero</h2>
       <div class="grid2" id="tabform"></div>
     </section>
+    <div id="pil-left"></div>
     <section class="sec">
       <h2><span class="grow">Estructura</span><button type="button" class="btn sm" id="b-add-top">+ Circuito</button></h2>
       <ul class="tree" id="tree"></ul>
@@ -790,7 +791,7 @@ function icon(tipo, w = 34, h = 42) {
 const $ = (id) => document.getElementById(id);
 let AN;
 
-function renderAll() { AN = analizar(); renderTop(); renderTab(); renderTree(); renderBal(); renderInsp(); renderSheet(); persist(); }
+function renderAll() { AN = analizar(); renderTop(); renderTab(); $("pil-left").innerHTML = pilHtml("pl"); renderTree(); renderBal(); renderInsp(); renderSheet(); persist(); }
 function renderLight() { AN = analizar(); renderTree(); renderBal(); renderInspCalc(); renderSheet(); persist(); }
 
 function renderTop() {
@@ -921,18 +922,18 @@ function renderInsp() {
       <button type="button" class="btn sm danger" data-act="del" id="b-del">Eliminar</button>
     </div><p class="note">Un subcircuito convierte esta rama en grupo: sus aparatos (p. ej. un diferencial) quedan aguas arriba de todos los subcircuitos.</p></section>`;
 }
-function pilHtml() {
+function pilHtml(px = "p") {
   const p = state.pil, n = isBi() ? 1 : 3;
   const hayItm = state.ent.some(d => d.tipo === "itm");
   const campos = p.on ? `<div class="grid2" style="margin-top:10px">
-      ${selectF("p-pos", "Conexión", p.pos, [["arriba", "Arriba de la 1ª térmica"], ["abajo", "Debajo de la 1ª térmica"]], `data-p="pos"`, "full")}
-      ${selectF("p-In", "Fusible (A)", p.In, [0.5, 1, 2, 4, 6, 10], `data-p="In"`)}
-      ${selectF("p-clase", "Clase", p.clase, ["gG", "aM"], `data-p="clase"`)}
-      ${selectF("p-formato", "Formato", p.formato, ["5x20", "6x32", "8x31", "10x38"], `data-p="formato"`)}
-      ${selectF("p-color", "Color", p.color, ["Rojo (RD)", "Verde (GN)", "Ámbar (YE)", "Blanco (WH)", "Azul (BU)", "Según fase"], `data-p="color"`)}
+      ${selectF(`${px}-pos`, "Conexión", p.pos, [["arriba", "Arriba de la 1ª térmica"], ["abajo", "Debajo de la 1ª térmica"]], `data-p="pos"`, "full")}
+      ${selectF(`${px}-In`, "Fusible (A)", p.In, [0.5, 1, 2, 4, 6, 10], `data-p="In"`)}
+      ${selectF(`${px}-clase`, "Clase", p.clase, ["gG", "aM"], `data-p="clase"`)}
+      ${selectF(`${px}-formato`, "Formato", p.formato, ["5x20", "6x32", "8x31", "10x38"], `data-p="formato"`)}
+      ${selectF(`${px}-color`, "Color", p.color, ["Rojo (RD)", "Verde (GN)", "Ámbar (YE)", "Blanco (WH)", "Azul (BU)", "Según fase"], `data-p="color"`)}
     </div>${hayItm ? "" : `<p class="note">No hay térmica en la entrada: las luces se dibujan al comienzo.</p>`}` : "";
-  return `<section class="sec"><h2>Luces piloto</h2>
-    <label class="chk"><input type="checkbox" id="p-on" data-p="on" ${p.on ? "checked" : ""}> ${n > 1 ? "3 luces piloto (R, S, T) con fusible por fase" : "Luz piloto (L-N) con fusible"}</label>${campos}</section>`;
+  return `<section class="sec" id="${px}-sec"><h2>Luces piloto</h2>
+    <label class="chk"><input type="checkbox" id="${px}-on" data-p="on" ${p.on ? "checked" : ""}> ${n > 1 ? "3 luces piloto (R, S, T) con fusible por fase" : "Luz piloto (L-N) con fusible"}</label>${campos}</section>`;
 }
 function calcHtml() {
   if (sel === "entrada") {
