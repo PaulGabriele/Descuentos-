@@ -165,7 +165,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="top">
-  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span><span id="ver" title="Versión del archivo">v6 · UPS</span></div>
+  <div class="brand"><h1>Unifilar de Tableros</h1><span>AEA 90364 · IEC 60617</span><span id="ver" title="Versión del archivo">v7 · split bypass</span></div>
   <div class="seg" role="group" aria-label="Tipo de tablero">
     <button type="button" id="tipo-bi" data-tipo="bi">Bipolar <small>1×220 V</small></button>
     <button type="button" id="tipo-tetra" data-tipo="tetra">Tetrapolar <small>3×380/220 V</small></button>
@@ -302,8 +302,8 @@ function ejemplo(tipo) {
       sal({nombre: "Tomas de servicio", fase: "T", carga: "tug", kw: 1, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16}), dev("id", {In: 25, sens: 30})]}),
       sal({nombre: "Aire acondicionado de precisión", fase: "RST", carga: "aa", kw: 7.5, cos: 0.85, cable: "4x6 mm² + PE", devs: [dev("itm", {In: 25})]}),
     ],
-    ups: {...UPS_DEF(false), on: true, kva: 20, fp: 0.9, rend: 95, autonomia: "15 min", tipo: "3/3",
-      entDevs: [dev("itm", {In: 40, icc: 10, tag: "Q-UE"})],
+    ups: {...UPS_DEF(false), on: true, kva: 20, fp: 0.9, rend: 95, autonomia: "15 min", tipo: "3/3", entradas: "split",
+      entDevs: [dev("itm", {In: 40, icc: 10, tag: "Q-UE"})], bpEntDevs: [dev("itm", {In: 40, icc: 10, tag: "Q-BE"})],
       salDevs: [dev("itm", {In: 40, icc: 10, tag: "Q-US"}), dev("id", {In: 40, sens: 30, clase: "A-SI"})],
       bp: {modo: "enclavado", tipo: "itm", In: 40, tag: "Q-BP"},
       sal: [
@@ -331,10 +331,12 @@ function nuevo(tipo) {
 const PIL_DEF = {on: false, In: 2, clase: "gG", formato: "10x38", color: "Rojo (RD)", pos: "arriba"};
 /* UPS: se alimenta desde la barra normal y su salida vuelve al tablero como segunda entrada (barra UPS) */
 const UPS_DEF = (bi) => ({on: false, nombre: "UPS-1", kva: bi ? 3 : 10, fp: 0.9, rend: bi ? 90 : 94, autonomia: "15 min", tipo: bi ? "1/1" : "3/3", faseIn: "R",
-  entDevs: [dev("itm", {In: bi ? 16 : 25, tag: "Q-UE"})], salDevs: [dev("itm", {In: bi ? 16 : 20, tag: "Q-US"})],
+  entradas: "una", faseBp: "R",
+  entDevs: [dev("itm", {In: bi ? 16 : 25, tag: "Q-UE"})], bpEntDevs: [dev("itm", {In: bi ? 16 : 20, tag: "Q-BE"})], salDevs: [dev("itm", {In: bi ? 16 : 20, tag: "Q-US"})],
   bp: {modo: "enclavado", tipo: "itm", In: bi ? 16 : 20, tag: "Q-BP"},
   sal: [sal({nombre: "Carga crítica 1", fase: "R", carga: "tue", kw: 1, cable: "2x2,5 mm² + PE", devs: [dev("itm", {In: 16})]})]});
 const UPS_TIPOS = [["3/3", "Trifásica / trifásica"], ["3/1", "Trifásica / monofásica"], ["1/1", "Monofásica / monofásica"]];
+const UPS_ENTRADAS = [["una", "Una entrada (rectificador + bypass)"], ["split", "Dos entradas (split bypass)"]];
 const BP_MODOS = [["enclavado", "Bypass con enclavamiento"], ["conmutador", "Conmutador 1-0-2"], ["no", "Sin bypass"]];
 const KEY = "unifilar.tablero.v1";
 let state;
@@ -353,6 +355,9 @@ const upsOn = () => !!(state.ups && state.ups.on);
 const upsOutTri = () => !isBi() && state.ups.tipo === "3/3";
 const upsFaseIn = () => isBi() ? "L" : (state.ups.tipo === "1/1" ? state.ups.faseIn || "R" : "RST");
 const upsFaseOut = () => upsOutTri() ? "RST" : "L";
+const upsSplit = () => state.ups.entradas === "split";
+/* La entrada de bypass estático tiene el mismo sistema que la salida de la UPS */
+const upsFaseBp = () => upsOutTri() ? "RST" : isBi() ? "L" : state.ups.tipo === "1/1" ? upsFaseIn() : (state.ups.faseBp || "R");
 function find(id, list, parent = null) {
   if (list === undefined) return find(id, state.sal) || (upsOn() ? find(id, state.ups.sal) : null);
   for (let i = 0; i < list.length; i++) {
@@ -469,10 +474,16 @@ function analizar() {
     const pe = protIn(ups.entDevs);
     if (pe == null) w.push(["w", "La alimentación de la UPS no tiene protección (ITM o fusible)."]);
     else if (pe < IinNom) w.push(["w", `La protección de entrada (${pe} A) es menor que la corriente de entrada de la UPS a plena carga (${nf(IinNom, 1)} A).`]);
+    let pb = null;
+    if (upsSplit()) {
+      pb = protIn(ups.bpEntDevs);
+      if (pb == null) w.push(["w", "La entrada de bypass estático no tiene protección (ITM o fusible)."]);
+      else if (pb < IoutNom) w.push(["w", `La protección de la entrada de bypass (${pb} A) es menor que la corriente nominal de salida (${nf(IoutNom, 1)} A): en bypass la carga pasa por ahí.`]);
+    }
     if (upsSalProt == null) w.push(["w", "La salida de la UPS no tiene protección (ITM o fusible)."]);
     else if (Iout > upsSalProt) w.push(["bad", `La corriente de salida (${nf(Iout, 1)} A) supera la protección de salida de ${upsSalProt} A.`]);
     if (fOut === "RST") { const d = deseqT(upsTot); if (d > 20) w.push(["w", `Desequilibrio de ${nf(d, 0)} % entre fases a la salida de la UPS.`]); }
-    upsInfo = {fIn, fOut, Pn, eta, kwIn, Iin, IinNom, IoutNom, Iout, carga, warns: w, entProt: pe, salProt: upsSalProt};
+    upsInfo = {fIn, fOut, fBp: upsFaseBp(), split: upsSplit(), bpProt: pb, Pn, eta, kwIn, Iin, IinNom, IoutNom, Iout, carga, warns: w, entProt: pe, salProt: upsSalProt};
   }
 
   const entWarn = [];
@@ -649,7 +660,7 @@ function buildSVG(an, forExport = false) {
   const width = new Map();
   const meas = (s) => { const w = s.hijos.length ? Math.max(COLW, s.hijos.reduce((a, h) => a + meas(h), 0)) : COLW; width.set(s.id, w); return w; };
   const redCircW = state.sal.reduce((a, s) => a + meas(s), 0);
-  const redW = Math.max(COLW, redCircW + (ups ? COLW : 0));     // con UPS se suma la columna de alimentación
+  const redW = Math.max(COLW, redCircW + (ups ? COLW * (upsSplit() ? 2 : 1) : 0));   // columnas de alimentación a la UPS
   const GAP = ups ? 30 : 0;
   const upsW = ups ? Math.max(UPS_MINW, ups.sal.reduce((a, s) => a + meas(s), 0)) : 0;
   const totalW = redW + GAP + upsW;
@@ -707,12 +718,31 @@ function buildSVG(an, forExport = false) {
     p += L(xf, y, xf, y + 30) + faseTag(fIn, xf, y + 16);
     y += 30;
     for (const d of ups.entDevs) { p += devRow(d, xf, y, fIn); y += DH; }
-    const yF = y + 22;
-    p += L(xf, y, xf, yF) + L(xf, yF, xu, yF);
-    p += T(xf + 10, yF - 6, "ALIMENTACIÓN UPS", {size: 8, weight: 600, fill: "#4A5561", ls: "0.08em"});
+    const split = ui.split, xf2 = xf + COLW;
+    const lbl = (x, y, t) => T(x + 10, y - 6, t, {size: 8, weight: 600, fill: "#4A5561", ls: "0.08em"});
+    let yF, yTap;   // yF: línea al rectificador · yTap: de dónde se toma el bypass de mantenimiento
+    if (split) {
+      // split bypass: la entrada de bypass estático va más arriba para no cruzar la del rectificador
+      let y2 = yBus;
+      p += L(xf2, y2, xf2, y2 + 30) + faseTag(ui.fBp, xf2, y2 + 16);
+      y2 += 30;
+      for (const d of ups.bpEntDevs) { p += devRow(d, xf2, y2, ui.fBp); y2 += DH; }
+      const yB = y2 + 22;
+      yF = Math.max(y + 22, yB + 20);
+      p += L(xf2, y2, xf2, yB) + L(xf2, yB, xu + 12, yB) + lbl(xf2, yB, "ENTRADA BYPASS ESTÁTICO");
+      p += L(xf, y, xf, yF) + L(xf, yF, xu - 12, yF) + lbl(xf, yF, "ENTRADA RECTIFICADOR");
+      yTap = yB;
+    } else {
+      yF = y + 22;
+      p += L(xf, y, xf, yF) + L(xf, yF, xu, yF) + lbl(xf, yF, "ALIMENTACIÓN UPS");
+      yTap = yF;
+    }
     // equipo UPS (rectificador / inversor) con banco de baterías
     const yU0 = yF + 22, UB = 46;
-    p += L(xu, yF, xu, yU0);
+    if (split) {
+      p += L(xu - 12, yF, xu - 12, yU0) + L(xu + 12, yTap, xu + 12, yU0);
+      p += T(xu - 16, yU0 - 5, "rect.", {size: 7, anchor: "end", fill: "#4A5561"}) + T(xu + 16, yU0 - 5, "byp.", {size: 7, fill: "#4A5561"});
+    } else p += L(xu, yF, xu, yU0);
     p += R(xu - 28, yU0, 56, UB) + L(xu - 28, yU0 + UB, xu + 28, yU0);
     p += T(xu - 13, yU0 + 18, "~", {size: 14, anchor: "middle", weight: 600}) + T(xu + 13, yU0 + 40, "~", {size: 14, anchor: "middle", weight: 600});
     const yb0 = yU0 + UB / 2;
@@ -723,7 +753,7 @@ function buildSVG(an, forExport = false) {
     const lx = xu + 38;
     p += T(lx, yU0 + 9, `${ups.nombre || "UPS"} · ${nx(ups.kva)} kVA`, {size: 9.5, weight: 600});
     p += T(lx, yU0 + 21, `${nx(ui.Pn)} kW · fp ${nx(ups.fp)} · η ${nx(ups.rend)} %`, {size: 8.5, fill: "#4A5561"});
-    p += T(lx, yU0 + 33, `Entrada ${fIn === "RST" ? "3F+N" : "1F+N"} · Salida ${fOut === "RST" ? "3F+N" : "1F+N"}`, {size: 8.5, fill: "#4A5561"});
+    p += T(lx, yU0 + 33, `Entrada ${fIn === "RST" ? "3F+N" : "1F+N"}${split ? " ×2" : ""} · Salida ${fOut === "RST" ? "3F+N" : "1F+N"}`, {size: 8.5, fill: "#4A5561"});
     p += T(lx, yU0 + 45, `Autonomía ${ups.autonomia || "—"}`, {size: 8.5, fill: "#4A5561"});
     // retorno de la UPS: segunda entrada del tablero
     y = yU0 + UB;
@@ -745,7 +775,7 @@ function buildSVG(an, forExport = false) {
       const bpDev = {tipo: ups.bp.tipo === "secc" ? "secc" : "itm", In: ups.bp.In, curva: "C", icc: 6, tag: ups.bp.tag || "", polos: "auto"};
       const pol = polosDe(bpDev, fOut);
       const yJ = y + 16;
-      p += dot(xb, yF) + L(xb, yF, xb, lastRow) + sym(bpDev, xb, lastRow, pol) + L(xb, lastRow + DH, xb, yJ);
+      p += dot(xb, yTap) + L(xb, yTap, xb, lastRow) + sym(bpDev, xb, lastRow, pol) + L(xb, lastRow + DH, xb, yJ);
       p += L(xb, yJ, xu, yJ) + L(xu, y, xu, yJ) + dot(xu, yJ);
       p += T(xb + 16, lastRow + 30, devLabel(bpDev, pol)[0], {size: 9.5, weight: 600}) + T(xb + 16, lastRow + 42, "Bypass mant.", {size: 8.5, fill: "#4A5561"});
       if (hayEnclave) {
@@ -756,7 +786,7 @@ function buildSVG(an, forExport = false) {
       p += L(xu, yJ, xu, yBusU);
     } else if (bpm === "conmutador") {
       const yC = y + 18, yP = yC + 32;
-      p += dot(xb, yF) + L(xb, yF, xb, yC) + L(xb, yC, xu - 24, yC) + L(xu, y, xu, yC);
+      p += dot(xb, yTap) + L(xb, yTap, xb, yC) + L(xb, yC, xu - 24, yC) + L(xu, y, xu, yC);
       p += `<circle cx="${xu - 24}" cy="${yC}" r="2.4" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}"/><circle cx="${xu}" cy="${yC}" r="2.4" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}"/>`;
       p += L(xu, yP, xu - 12, yC + 5) + dot(xu, yP);
       p += T(xu - 24, yC - 7, "2", {size: 8, anchor: "middle", weight: 600}) + T(xu, yC - 7, "1", {size: 8, anchor: "middle", weight: 600}) + T(xu - 18, yP + 2, "0", {size: 8, anchor: "middle", weight: 600});
@@ -770,7 +800,7 @@ function buildSVG(an, forExport = false) {
       yBusU = y + 26;
       p += L(xu, y, xu, yBusU);
     }
-    U = {xf, xS, xb, xu, yF, yBusU, parts: p, fOut};
+    U = {xf, xf2, split, xS, xb, xu, yF, yTap, yBusU, parts: p, fOut};
     let xx = xS;
     for (const s of ups.sal) { place(s, xx, yBusU); xx += width.get(s.id); }
   }
@@ -822,7 +852,7 @@ function buildSVG(an, forExport = false) {
 
   // --- barras ---
   const cxsTop = groups.filter(g => state.sal.includes(g.s)).map(g => g.cx + dx);
-  if (U) cxsTop.push(U.xf + dx);
+  if (U) { cxsTop.push(U.xf + dx); if (U.split) cxsTop.push(U.xf2 + dx); }
   const bx1 = Math.min(entCx, ...cxsTop) - 22, bx2 = Math.max(entCx, ...cxsTop) + 22;
   let bus = `<line x1="${bx1}" y1="${yBus}" x2="${bx2}" y2="${yBus}" stroke="${INK}" stroke-width="5" stroke-linecap="square"/>`;
   bus += T(bx1, yBus - 9, (U ? "Barra normal · " : "Barras ") + (bi ? "L-N · 220 V · 50 Hz" : "R-S-T-N · 3x380/220 V · 50 Hz"), {size: 9, weight: 600, fill: "#4A5561"});
@@ -834,10 +864,10 @@ function buildSVG(an, forExport = false) {
     bus += T(U.xu + dx + 10, U.yBusU - 9, `Barra UPS · ${U.fOut === "RST" ? "R-S-T-N · 3x380/220 V" : "L-N · 220 V"}`, {size: 9, weight: 600, fill: "#4A5561"});
     bus += T(ux1, U.yBusU + 16, "PE", {size: 9, weight: 600, fill: "#3E8E41"});
     bus += `<g transform="translate(${dx} 0)">${U.parts}</g>`;
-    const fx = U.xf + dx - COLW / 2 + 3, fy = yBus + 4, fh = U.yF + 8 - fy;
-    const ax = U.xb + dx - 40, ay = U.yF - 16, aw = U.xu - U.xb + 40 + 210, ah = U.yBusU - 4 - ay;
-    hits += hit("ups", fx, fy, COLW - 6, fh) + hit("ups", ax, ay, aw, ah);
-    if (sel === "ups") selRect += selBox(fx, fy, COLW - 6, fh) + selBox(ax, ay, aw, ah);
+    const fx = U.xf + dx - COLW / 2 + 3, fy = yBus + 4, fh = U.yF + 8 - fy, fw = COLW * (U.split ? 2 : 1) - 6;
+    const ax = U.xb + dx - 40, ay = Math.min(U.yF, U.yTap) - 16, aw = U.xu - U.xb + 40 + 210, ah = U.yBusU - 4 - ay;
+    hits += hit("ups", fx, fy, fw, fh) + hit("ups", ax, ay, aw, ah);
+    if (sel === "ups") selRect += selBox(fx, fy, fw, fh) + selBox(ax, ay, aw, ah);
   }
 
   // --- ramas ---
@@ -1118,7 +1148,8 @@ function upsLeftHtml() {
   const campos = u.on ? `<div class="grid2" style="margin-top:10px">
       ${upsTipoSel("ul")}
       ${field("ul-kva", "Potencia (kVA)", u.kva, `data-u="kva" inputmode="decimal" class="num"`)}
-      ${selectF("ul-bp", "Bypass", u.bp.modo, BP_MODOS, `data-ub="modo"`)}
+      ${selectF("ul-bp", "Bypass mant.", u.bp.modo, BP_MODOS, `data-ub="modo"`)}
+      ${selectF("ul-ent", "Entradas de la UPS", u.entradas, UPS_ENTRADAS, `data-u="entradas"`, "full")}
     </div><div class="acts-row" style="margin-top:8px"><button type="button" class="btn sm" data-go="ups">Editar UPS y sus aparatos →</button></div>` : "";
   return `<section class="sec"><h2>UPS</h2>
     <label class="chk"><input type="checkbox" id="ul-on" data-u="on" ${u.on ? "checked" : ""}> Tablero con UPS (entrada de red + retorno de la UPS)</label>${campos}</section>`;
@@ -1136,12 +1167,17 @@ function renderInspUps(el) {
       ${field("u-kva", "Potencia (kVA)", u.kva, `data-u="kva" inputmode="decimal" class="num"`)}
       ${upsTipoSel("u")}
       ${!isBi() && u.tipo === "1/1" ? selectF("u-faseIn", "Fase de entrada", u.faseIn, ["R", "S", "T"], `data-u="faseIn"`) : ""}
+      ${selectF("u-ent", "Entradas", u.entradas, UPS_ENTRADAS, `data-u="entradas"`, "full")}
+      ${!isBi() && u.tipo === "3/1" && u.entradas === "split" ? selectF("u-faseBp", "Fase de la entrada de bypass", u.faseBp, ["R", "S", "T"], `data-u="faseBp"`, "full") : ""}
       ${field("u-fp", "Factor de potencia", u.fp, `data-u="fp" inputmode="decimal" class="num"`)}
       ${field("u-rend", "Rendimiento (%)", u.rend, `data-u="rend" inputmode="decimal" class="num"`)}
       ${field("u-aut", "Autonomía", u.autonomia, `data-u="autonomia" placeholder="15 min"`)}
     </div></section>
-    <section class="sec"><h2>Alimentación de la UPS · desde barra normal</h2><div class="devs">${lista(u.entDevs, ui.fIn)}</div></section>
-    <section class="sec"><h2>Agregar a la alimentación</h2>${palette("upsEnt")}</section>
+    <section class="sec"><h2>${ui.split ? "Entrada rectificador" : "Alimentación de la UPS"} · desde barra normal</h2><div class="devs">${lista(u.entDevs, ui.fIn)}</div></section>
+    <section class="sec"><h2>Agregar a ${ui.split ? "la entrada rectificador" : "la alimentación"}</h2>${palette("upsEnt")}</section>
+    ${ui.split ? `<section class="sec"><h2>Entrada bypass estático · desde barra normal</h2><div class="devs">${lista(u.bpEntDevs, ui.fBp)}</div>
+      <p class="note">En bypass la carga completa pasa por esta entrada: su protección tiene que cubrir la corriente nominal de salida.</p></section>
+    <section class="sec"><h2>Agregar a la entrada bypass</h2>${palette("upsBpEnt")}</section>` : ""}
     <section class="sec"><h2>Salida de la UPS · antes de la barra UPS</h2><div class="devs">${lista(u.salDevs, ui.fOut)}</div></section>
     <section class="sec"><h2>Agregar a la salida</h2>${palette("upsSal")}</section>
     <section class="sec"><h2>Bypass de mantenimiento</h2><div class="grid2">
@@ -1197,7 +1233,7 @@ function renderSheet() {
 /* ---------- eventos ---------- */
 function devList(devId) {
   if (state.ent.some(d => d.id === devId)) return state.ent;
-  if (state.ups) for (const l of [state.ups.entDevs, state.ups.salDevs]) if (l.some(d => d.id === devId)) return l;
+  if (state.ups) for (const l of [state.ups.entDevs, state.ups.bpEntDevs, state.ups.salDevs]) if (l.some(d => d.id === devId)) return l;
   let r = null;
   walk(s => { if (s.devs.some(d => d.id === devId)) r = s.devs; });
   return r;
@@ -1257,7 +1293,7 @@ document.addEventListener("click", (e) => {
   if (b.dataset.tipo) { state.tab.tipo = b.dataset.tipo; return renderAll(); }
   if (b.dataset.add) {
     const lk = b.dataset.list;
-    const list = lk === "upsEnt" ? state.ups.entDevs : lk === "upsSal" ? state.ups.salDevs : sel === "entrada" ? state.ent : find(sel)?.s.devs;
+    const list = lk === "upsEnt" ? state.ups.entDevs : lk === "upsBpEnt" ? state.ups.bpEntDevs : lk === "upsSal" ? state.ups.salDevs : sel === "entrada" ? state.ent : find(sel)?.s.devs;
     if (!list) return;
     const d = dev(b.dataset.add);
     if (b.dataset.add === "med") d.medidor = isBi() ? "Monofásico" : "Trifásico";
@@ -1374,7 +1410,7 @@ const normAll = () => {
   const ud = UPS_DEF(isBi());
   state.ups = {...ud, ...(state.ups || {})};
   state.ups.bp = {...ud.bp, ...(state.ups.bp || {})};
-  state.ent.forEach(norm); state.ups.entDevs.forEach(norm); state.ups.salDevs.forEach(norm);
+  state.ent.forEach(norm); state.ups.entDevs.forEach(norm); state.ups.bpEntDevs.forEach(norm); state.ups.salDevs.forEach(norm);
   walk(s => s.devs.forEach(norm), state.sal); walk(s => s.devs.forEach(norm), state.ups.sal);
 };
 normAll();
