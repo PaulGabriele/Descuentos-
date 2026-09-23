@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Unifilar de Tableros</title>
+<meta name="description" content="Editor online de esquemas unifilares para tableros eléctricos bipolares y tetrapolares: aparatos, cuadro de cargas, balance de fases y exportación a SVG/PNG.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231D5AA6'/%3E%3Cpath d='M16 4v8M16 20v8M16 20l-6-9' stroke='white' stroke-width='2.6' stroke-linecap='round' fill='none'/%3E%3Cpath d='M13 9l6 6M19 9l-6 6' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -420,9 +422,10 @@ function protIn(devs) {
    ============================================================ */
 let INK = "#15191E", PAPER = "#FFFFFF";
 const SW = 1.6;
-const L = (x1, y1, x2, y2, ex = "") => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" stroke-width="${SW}" stroke-linecap="round" ${ex}/>`;
+const sw = (ex) => /stroke-width=/.test(ex) ? "" : `stroke-width="${SW}" `;
+const L = (x1, y1, x2, y2, ex = "") => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${INK}" ${sw(ex)}stroke-linecap="round" ${ex}/>`;
 const P = (d, ex = "") => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${SW}" stroke-linecap="round" stroke-linejoin="round" ${ex}/>`;
-const R = (x, y, w, h, ex = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}" ${ex}/>`;
+const R = (x, y, w, h, ex = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${PAPER}" stroke="${INK}" ${sw(ex)}${ex}/>`;
 const C = (cx, cy, r, ex = "") => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${PAPER}" stroke="${INK}" stroke-width="${SW}" ${ex}/>`;
 const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" font-size="${o.size || 10}" text-anchor="${o.anchor || "start"}" font-weight="${o.weight || 400}" fill="${o.fill || INK}" font-family="${o.family || MONO}"${o.ls ? ` letter-spacing="${o.ls}"` : ""}>${esc(s)}</text>`;
 const X = (cx, cy, r = 4) => L(cx - r, cy - r, cx + r, cy + r) + L(cx - r, cy + r, cx + r, cy - r);
