@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blog Reader</title>
+<style>
+  :root { --fg:#1d1d1f; --mut:#6e6e73; --line:#e5e5ea; --bg:#fff; --acc:#d35400; --card:#f5f5f7; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#f2f2f7; --mut:#98989f; --line:#2c2c2e; --bg:#000; --card:#1c1c1e; --acc:#ff8c42; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 system-ui, sans-serif; color:var(--fg); background:var(--bg); }
+  header { position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line);
+           padding:12px 14px; display:flex; align-items:center; gap:8px; z-index:2; }
+  header h1 { font-size:19px; margin:0; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  button { font:inherit; border:0; background:var(--card); color:var(--fg); border-radius:10px;
+           padding:8px 12px; }
+  button.pri { background:var(--acc); color:#fff; }
+  main { padding:0 14px 40px; }
+  .post { display:block; padding:14px 0; border-bottom:1px solid var(--line); color:inherit; text-decoration:none; }
+  .post b { display:block; font-size:17px; }
+  .meta { color:var(--mut); font-size:13px; margin-top:2px; }
+  .sum { color:var(--mut); font-size:14.5px; margin-top:4px;
+         display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .panel { padding:12px 0; border-bottom:1px solid var(--line); }
+  .add { display:flex; gap:8px; }
+  .add input { flex:1; min-width:0; font:inherit; padding:9px 10px; border-radius:10px;
+               border:1px solid var(--line); background:var(--bg); color:var(--fg); }
+  .site { display:flex; align-items:center; gap:8px; padding:8px 0; }
+  .site span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .site small { display:block; color:#c0392b; }
+  .msg { padding:10px 12px; margin-top:10px; border-radius:10px; background:var(--card); font-size:14px; }
+  .empty { color:var(--mut); text-align:center; margin-top:40px; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Blog Reader</h1>
+  <button id="btnRefresh" aria-label="Refresh">⟳</button>
+  <button id="btnSites" class="pri">Sites</button>
+</header>
+<main>
+  <section id="panel" class="panel hidden">
+    <form class="add" id="addForm">
+      <input id="url" type="text" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="Blog URL (homepage or feed)" required>
+      <button class="pri">Add</button>
+    </form>
+    <div id="msg" class="msg hidden"></div>
+    <div id="sites"></div>
+  </section>
+  <div id="posts"></div>
+</main>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const store = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
+};
+let feeds = store.get("feeds", []);          // [{title, feed}]
+let posts = store.get("posts", []);          // [{title, link, date, summary, source}]
+let errors = store.get("errors", {});
+let filter = null;
+let busy = false;
+
+// ---------- HTTP: native bridge on Android, plain fetch() in a desktop browser ----------
+const pending = {};
+let nextId = 1;
+window.__done = (id, ok, finalUrl, payload) => {
+  const p = pending[id]; delete pending[id];
+  if (!ok) return p.reject(new Error(payload));
+  const bin = atob(payload), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  p.resolve({ url: finalUrl, text: decode(bytes) });
+};
+function decode(bytes) {
+  const head = new TextDecoder("latin1").decode(bytes.slice(0, 1024));
+  const m = head.match(/encoding=["']([\w-]+)/i) || head.match(/charset=["']?([\w-]+)/i);
+  try { return new TextDecoder(m ? m[1] : "utf-8").decode(bytes); }
+  catch { return new TextDecoder("utf-8").decode(bytes); }
+}
+function get(url) {
+  if (window.Native) {
+    return new Promise((resolve, reject) => {
+      const id = nextId++;
+      pending[id] = { resolve, reject };
+      Native.fetch(id, url);
+    });
+  }
+  return fetch(url).then(async r => {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return { url: r.url, text: decode(new Uint8Array(await r.arrayBuffer())) };
+  });
+}
+
+// ---------- feed parsing ----------
+const isFeed = t => /<(rss|feed|rdf:RDF)[\s>]/i.test(t.slice(0, 3000));
+const txt = (el, ...names) => {
+  for (const n of names) {
+    const c = [...el.children].find(x => x.localName.toLowerCase() === n.toLowerCase()
+                                       || x.nodeName.toLowerCase() === n.toLowerCase());
+    if (c && c.textContent.trim()) return c.textContent.trim();
+  }
+  return "";
+};
+function summary(raw) {
+  const d = new DOMParser().parseFromString(raw || "", "text/html");
+  const s = (d.body.textContent || "").replace(/\s+/g, " ").trim();
+  return s.length > 280 ? s.slice(0, 280) + "…" : s;
+}
+function toDate(s) { const d = new Date(s); return isNaN(d) ? null : d.toISOString(); }
+
+function parseFeed(text, base) {
+  const doc = new DOMParser().parseFromString(text, "text/xml");
+  if (doc.querySelector("parsererror")) throw new Error("Feed is not valid XML");
+  const root = doc.documentElement, out = [];
+  let title;
+  if (root.localName === "feed") {                         // Atom
+    title = txt(root, "title");
+    for (const e of root.children) {
+      if (e.localName !== "entry") continue;
+      const links = [...e.children].filter(x => x.localName === "link");
+      const l = links.find(x => (x.getAttribute("rel") || "alternate") === "alternate") || links[0];
+      out.push({ title: txt(e, "title"), link: new URL(l?.getAttribute("href") || "", base).href,
+                 date: toDate(txt(e, "published", "updated")), summary: summary(txt(e, "summary", "content")) });
+    }
+  } else {                                                  // RSS 2.0 / 1.0
+    const ch = [...root.children].find(x => x.localName === "channel") || root;
+    title = txt(ch, "title");
+    let items = [...ch.children].filter(x => x.localName === "item");
+    if (!items.length) items = [...root.children].filter(x => x.localName === "item");
+    for (const i of items) {
+      out.push({ title: txt(i, "title"), link: txt(i, "link"),
+                 date: toDate(txt(i, "pubDate", "dc:date", "date", "published")),
+                 summary: summary(txt(i, "description", "content:encoded", "encoded")) });
+    }
+  }
+  return { title: title || new URL(base).hostname, posts: out };
+}
+
+async function discover(url) {
+  if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+  const r = await get(url);
+  if (isFeed(r.text)) return { feed: r.url, title: parseFeed(r.text, r.url).title };
+  const doc = new DOMParser().parseFromString(r.text, "text/html");
+  const alt = doc.querySelector('link[type="application/rss+xml"], link[type="application/atom+xml"]');
+  const candidates = alt ? [new URL(alt.getAttribute("href"), r.url).href] : [];
+  const base = r.url.replace(/\/?$/, "/");
+  for (const p of ["feed", "rss", "rss.xml", "atom.xml", "feed.xml", "index.xml"])
+    candidates.push(new URL(p, base).href);
+  for (const c of candidates) {
+    try {
+      const f = await get(c);
+      if (isFeed(f.text)) return { feed: f.url, title: parseFeed(f.text, f.url).title };
+    } catch {}
+  }
+  throw new Error("No RSS/Atom feed found on that page");
+}
+
+// ---------- actions ----------
+async function refresh() {
+  if (busy || !feeds.length) return;
+  busy = true; $("btnRefresh").textContent = "…";
+  const all = [], errs = {};
+  await Promise.all(feeds.map(async f => {
+    try {
+      const r = await get(f.feed);
+      for (const p of parseFeed(r.text, r.url).posts) all.push({ ...p, source: f.title });
+    } catch (e) { errs[f.feed] = e.message; }
+  }));
+  all.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+  posts = all.slice(0, 300); errors = errs;
+  store.set("posts", posts); store.set("errors", errors); store.set("lastRefresh", Date.now());
+  busy = false; $("btnRefresh").textContent = "⟳";
+  render();
+}
+
+async function addSite(url) {
+  msg("Looking for the feed…");
+  try {
+    const f = await discover(url.trim());
+    if (feeds.some(x => x.feed === f.feed)) return msg("Already added: " + f.title);
+    feeds.push(f); store.set("feeds", feeds);
+    $("url").value = "";
+    msg("Added: " + f.title);
+    renderSites(); refresh();
+  } catch (e) { msg("Could not add: " + e.message); }
+}
+
+function removeSite(feed) {
+  const f = feeds.find(x => x.feed === feed);
+  if (!f || !confirm("Remove " + f.title + "?")) return;
+  feeds = feeds.filter(x => x.feed !== feed); store.set("feeds", feeds);
+  posts = posts.filter(p => p.source !== f.title); store.set("posts", posts);
+  render();
+}
+
+// ---------- rendering ----------
+function msg(t) { $("msg").textContent = t; $("msg").classList.toggle("hidden", !t); }
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+function fmt(iso) {
+  if (!iso) return "";
+  const d = new Date(iso), days = (Date.now() - d) / 864e5;
+  if (days < 1) return "today";
+  if (days < 2) return "yesterday";
+  if (days < 7) return Math.floor(days) + " days ago";
+  return d.toLocaleDateString();
+}
+function renderSites() {
+  $("sites").innerHTML = feeds.length
+    ? feeds.map(f => `<div class="site"><span data-src="${esc(f.title)}">${esc(f.title)}
+        ${errors[f.feed] ? `<small>${esc(errors[f.feed])}</small>` : ""}</span>
+        <button data-rm="${esc(f.feed)}">Remove</button></div>`).join("")
+    : "";
+}
+function renderPosts() {
+  const list = filter ? posts.filter(p => p.source === filter) : posts;
+  $("title").textContent = filter || "Blog Reader";
+  $("posts").innerHTML = list.length
+    ? list.map(p => `<a class="post" href="${esc(p.link)}"><b>${esc(p.title || "(untitled)")}</b>
+        <div class="meta">${esc(p.source)}${p.date ? " · " + fmt(p.date) : ""}</div>
+        ${p.summary ? `<div class="sum">${esc(p.summary)}</div>` : ""}</a>`).join("")
+    : `<p class="empty">${feeds.length ? "No posts yet. Tap ⟳ to refresh." : "Tap <b>Sites</b> to add your first blog."}</p>`;
+}
+function render() { renderSites(); renderPosts(); }
+
+// ---------- events ----------
+$("btnSites").onclick = () => { $("panel").classList.toggle("hidden"); msg(""); };
+$("btnRefresh").onclick = refresh;
+$("addForm").onsubmit = e => { e.preventDefault(); addSite($("url").value); };
+$("sites").onclick = e => {
+  if (e.target.dataset.rm) removeSite(e.target.dataset.rm);
+  const s = e.target.closest("[data-src]");
+  if (s) { filter = s.dataset.src; $("panel").classList.add("hidden"); renderPosts(); scrollTo(0, 0); }
+};
+// Android back button: close panel / clear filter first, then exit.
+window.onBack = () => {
+  if (!$("panel").classList.contains("hidden")) { $("panel").classList.add("hidden"); return true; }
+  if (filter) { filter = null; renderPosts(); return true; }
+  return false;
+};
+// "Share → Blog Reader" from Chrome or any app.
+window.onShared = text => {
+  const m = String(text).match(/https?:\/\/\S+/);
+  if (!m) return;
+  $("panel").classList.remove("hidden");
+  $("url").value = m[0];
+  addSite(m[0]);
+};
+
+render();
+if (!feeds.length) $("panel").classList.remove("hidden");
+if (Date.now() - store.get("lastRefresh", 0) > 15 * 60e3) refresh();
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && Date.now() - store.get("lastRefresh", 0) > 15 * 60e3) refresh();
+});
+</script>
+</body>
+</html>
