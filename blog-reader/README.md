@@ -16,5 +16,9 @@ python3 reader.py          # open http://localhost:8000
 `android/` is a native Android app (Android 8+) with the same features. Sites are stored on the phone.
 You can also add a blog by opening it in Chrome and choosing **Share → Blog Reader**.
 
+**Backup:** Sites → *Back up* saves your list as a `.json` file anywhere you choose (Downloads, Drive…).
+*Restore* merges a backup into your list (no duplicates). It also accepts the desktop `feeds.json`
+and OPML files exported by other feed readers.
+
 Build (needs the Android SDK): `cd android && gradle assembleDebug`
 → `app/build/outputs/apk/debug/app-debug.apk`

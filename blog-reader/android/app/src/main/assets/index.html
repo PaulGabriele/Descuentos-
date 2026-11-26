@@ -32,6 +32,8 @@
   .site small { display:block; color:#c0392b; }
   .msg { padding:10px 12px; margin-top:10px; border-radius:10px; background:var(--card); font-size:14px; }
   .empty { color:var(--mut); text-align:center; margin-top:40px; }
+  .backup { display:flex; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
+  .backup button { flex:1; }
   .hidden { display:none; }
 </style>
 </head>
@@ -49,6 +51,11 @@
     </form>
     <div id="msg" class="msg hidden"></div>
     <div id="sites"></div>
+    <div class="backup">
+      <button id="btnExport">Back up</button>
+      <button id="btnImport">Restore</button>
+      <input id="fileIn" type="file" accept=".json,.opml,.xml,application/json,text/xml" class="hidden">
+    </div>
   </section>
   <div id="posts"></div>
 </main>
@@ -64,7 +71,7 @@ let feeds = store.get("feeds", []);          // [{title, feed}]
 let posts = store.get("posts", []);          // [{title, link, date, summary, source}]
 let errors = store.get("errors", {});
 let filter = null;
-let busy = false;
+let busy = false, again = false;
 
 // ---------- HTTP: native bridge on Android, plain fetch() in a desktop browser ----------
 const pending = {};
@@ -162,7 +169,8 @@ async function discover(url) {
 
 // ---------- actions ----------
 async function refresh() {
-  if (busy || !feeds.length) return;
+  if (busy) { again = true; return; }
+  if (!feeds.length) return;
   busy = true; $("btnRefresh").textContent = "…";
   const all = [], errs = {};
   await Promise.all(feeds.map(async f => {
@@ -176,6 +184,7 @@ async function refresh() {
   store.set("posts", posts); store.set("errors", errors); store.set("lastRefresh", Date.now());
   busy = false; $("btnRefresh").textContent = "⟳";
   render();
+  if (again) { again = false; refresh(); }
 }
 
 async function addSite(url) {
@@ -197,6 +206,47 @@ function removeSite(feed) {
   posts = posts.filter(p => p.source !== f.title); store.set("posts", posts);
   render();
 }
+
+// ---------- backup / restore ----------
+function exportSites() {
+  if (!feeds.length) return msg("No sites to back up yet.");
+  const data = JSON.stringify({ app: "blog-reader", version: 1,
+    exported: new Date().toISOString(), feeds }, null, 2);
+  const name = "blog-reader-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+  if (window.Native) return Native.exportFile(name, data);
+  const a = document.createElement("a");               // desktop browser fallback
+  a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+// Accepts this app's backup, the desktop app's feeds.json, or an OPML file.
+function parseBackup(text) {
+  text = text.replace(/^\uFEFF/, "").trim();
+  if (text.startsWith("{") || text.startsWith("[")) {
+    const j = JSON.parse(text), list = Array.isArray(j) ? j : j.feeds;
+    if (!Array.isArray(list)) throw new Error("no site list in file");
+    return list.filter(f => f && typeof f.feed === "string" && /^https?:\/\//i.test(f.feed))
+               .map(f => ({ title: String(f.title || new URL(f.feed).hostname), feed: f.feed }));
+  }
+  const doc = new DOMParser().parseFromString(text, "text/xml");
+  if (doc.querySelector("parsererror")) throw new Error("not a backup, JSON or OPML file");
+  return [...doc.querySelectorAll("outline[xmlUrl]")]
+    .map(o => ({ title: o.getAttribute("title") || o.getAttribute("text") || "", feed: o.getAttribute("xmlUrl") }))
+    .filter(f => /^https?:\/\//i.test(f.feed))
+    .map(f => ({ ...f, title: f.title || new URL(f.feed).hostname }));
+}
+
+window.onImported = text => {
+  let list;
+  try { list = parseBackup(text); } catch (e) { return msg("Could not restore: " + e.message); }
+  const fresh = list.filter(f => !feeds.some(x => x.feed === f.feed));
+  feeds = feeds.concat(fresh); store.set("feeds", feeds);
+  msg(`Restored ${fresh.length} site${fresh.length === 1 ? "" : "s"}` +
+      (list.length > fresh.length ? ` (${list.length - fresh.length} already in your list)` : "") + ".");
+  renderSites();
+  if (fresh.length) refresh();
+};
+window.onFileDone = (ok, text) => msg(text);
 
 // ---------- rendering ----------
 function msg(t) { $("msg").textContent = t; $("msg").classList.toggle("hidden", !t); }
@@ -230,6 +280,12 @@ function render() { renderSites(); renderPosts(); }
 // ---------- events ----------
 $("btnSites").onclick = () => { $("panel").classList.toggle("hidden"); msg(""); };
 $("btnRefresh").onclick = refresh;
+$("btnExport").onclick = exportSites;
+$("btnImport").onclick = () => window.Native ? Native.importFile() : $("fileIn").click();
+$("fileIn").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (f) window.onImported(await f.text());
+};
 $("addForm").onsubmit = e => { e.preventDefault(); addSite($("url").value); };
 $("sites").onclick = e => {
   if (e.target.dataset.rm) removeSite(e.target.dataset.rm);

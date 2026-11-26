@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +31,8 @@ public class MainActivity extends Activity {
     private WebView web;
     private final ExecutorService pool = Executors.newFixedThreadPool(6);
     private String pendingShare;
+    private String pendingExport;
+    private static final int REQ_EXPORT = 1, REQ_IMPORT = 2;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -96,7 +100,58 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
+    @Override
+    protected void onActivityResult(int req, int result, Intent data) {
+        super.onActivityResult(req, result, data);
+        Uri uri = (result == RESULT_OK && data != null) ? data.getData() : null;
+        if (req == REQ_EXPORT) {
+            String text = pendingExport;
+            pendingExport = null;
+            if (uri == null) { js("window.onFileDone(false,'Backup cancelled')"); return; }
+            try (OutputStream out = getContentResolver().openOutputStream(uri, "wt")) {
+                out.write(text.getBytes(StandardCharsets.UTF_8));
+                js("window.onFileDone(true,'Backup saved')");
+            } catch (Exception e) {
+                js("window.onFileDone(false," + JSONObject.quote("Backup failed: " + e) + ")");
+            }
+        } else if (req == REQ_IMPORT) {
+            if (uri == null) return;
+            try (InputStream in = getContentResolver().openInputStream(uri)) {
+                String text = new String(readAll(in), StandardCharsets.UTF_8);
+                js("window.onImported(" + JSONObject.quote(text) + ")");
+            } catch (Exception e) {
+                js("window.onFileDone(false," + JSONObject.quote("Could not read file: " + e) + ")");
+            }
+        }
+    }
+
+    private void js(String code) { web.evaluateJavascript(code, null); }
+
     class Bridge {
+        /** Opens Android's "Save as" picker; writes the text to the chosen file. */
+        @JavascriptInterface
+        public void exportFile(final String fileName, final String text) {
+            runOnUiThread(() -> {
+                pendingExport = text;
+                Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType("application/json")
+                        .putExtra(Intent.EXTRA_TITLE, fileName);
+                startActivityForResult(i, REQ_EXPORT);
+            });
+        }
+
+        /** Opens Android's file picker; the file's text arrives in JS via window.onImported(text). */
+        @JavascriptInterface
+        public void importFile() {
+            runOnUiThread(() -> {
+                Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType("*/*");
+                startActivityForResult(i, REQ_IMPORT);
+            });
+        }
+
         /** Async GET. Result arrives in JS as window.__done(id, ok, finalUrl, base64Body|error). */
         @JavascriptInterface
         public void fetch(final int id, final String url) {
